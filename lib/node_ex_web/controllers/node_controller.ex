@@ -1,13 +1,6 @@
 defmodule NodeExWeb.NodeController do
   use NodeExWeb, :controller
 
-  @default_nodes Path.join(__DIR__, "../nodes")
-                 |> File.ls!()
-                 |> Enum.map(fn node ->
-                   File.read!(Path.join([__DIR__, "../nodes", node]))
-                 end)
-                 |> Enum.join("\n\n")
-
   def nodes(conn, _params) do
     conn = accepts(conn, ["json", "html"])
 
@@ -49,6 +42,18 @@ defmodule NodeExWeb.NodeController do
               "user": false,
               "module": "node-red",
               "version": "4.0.8"
+          },
+          {
+              "id": "node-red/function",
+              "name": "function",
+              "types": [
+                  "function"
+              ],
+              "enabled": true,
+              "local": false,
+              "user": false,
+              "module": "node-red",
+              "version": "4.0.8"
           }
       ]
       """
@@ -59,7 +64,12 @@ defmodule NodeExWeb.NodeController do
         json(conn, data)
 
       "html" ->
-        html(conn, @default_nodes)
+        file_path =
+          Path.join([:code.priv_dir(:node_ex), "static", "assets", "nodes", "nodes.html"])
+
+        conn
+        |> put_resp_content_type("text/html")
+        |> send_file(200, file_path)
 
       _ ->
         # TODO remove this

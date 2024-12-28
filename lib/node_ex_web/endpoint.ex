@@ -44,6 +44,11 @@ defmodule NodeExWeb.Endpoint do
     from: {:node_ex, "priv/static/assets/node-red/public/vendor"},
     gzip: false
 
+  plug Plug.Static,
+    at: "/icons/node-red",
+    from: {:node_ex, "priv/static/assets/nodes/icons"},
+    gzip: false
+
   # Code reloading can be explicitly enabled under the
   # :code_reloader configuration of your endpoint.
   if code_reloading? do
