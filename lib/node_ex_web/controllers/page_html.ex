@@ -17,8 +17,12 @@ defmodule NodeExWeb.PageHTML do
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="mobile-web-app-capable" content="yes" />
         <title>Editor</title>
-        <link rel="icon" type="image/png" href="{{{ page.favicon }}}" />
-        <link rel="mask-icon" href="{{{ page.tabicon.icon }}}" color="{{ page.tabicon.colour }}" />
+        <link rel="icon" type="image/png" href={~p"/assets/node-red/public/favicon.ico"} />
+        <link
+          rel="mask-icon"
+          href={~p"/assets/node-red/public/red/node-red-icon-black.svg"}
+          color="#8f0000"
+        />
         <link
           rel="stylesheet"
           href={~p"/assets/node-red/public/vendor/jquery/css/base/jquery-ui.min.css"}
