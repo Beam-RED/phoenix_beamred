@@ -17,6 +17,7 @@ defmodule NodeExWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+    get "/comms", WebsocketUpgrade, NodeExWeb.CommsSocket
   end
 
   scope "/theme", NodeExWeb do
