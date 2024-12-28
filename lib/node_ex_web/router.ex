@@ -25,7 +25,7 @@ defmodule NodeExWeb.Router do
   scope "/locales", NodeExWeb do
     pipe_through :api
 
-    get ":file", PageController, :locales
+    get "/:file", PageController, :locales
   end
 
   scope "/theme", NodeExWeb do
@@ -48,8 +48,8 @@ defmodule NodeExWeb.Router do
   end
 
   scope "/nodes", NodeExWeb do
-    get "/", PageController, :nodes
-    get "/messages", PageController, :nodes_messages
+    get "/", NodeController, :nodes
+    get "/messages", NodeController, :messages
   end
 
   scope "/icons", NodeExWeb do

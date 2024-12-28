@@ -210,7 +210,7 @@ defmodule NodeExWeb.PageController do
   end
 
   def new_flow(conn, params) do
-    deploytment_type =
+    deployment_type =
       case get_req_header(conn, "node-red-deployment-type") do
         ["flows"] -> :flows
         ["full"] -> :full
@@ -224,75 +224,6 @@ defmodule NodeExWeb.PageController do
     data =
       """
       {"rev":"null"}
-      """
-      |> Jason.decode!()
-
-    json(conn, data)
-  end
-
-  def nodes(conn, _params) do
-    conn = accepts(conn, ["json", "html"])
-
-    data =
-      """
-      [
-          {
-              "id": "node-red/junction",
-              "name": "junction",
-              "types": [
-                  "junction"
-              ],
-              "enabled": true,
-              "local": false,
-              "user": false,
-              "module": "node-red",
-              "version": "4.0.8"
-          },
-          {
-              "id": "node-red/inject",
-              "name": "inject",
-              "types": [
-                  "inject"
-              ],
-              "enabled": true,
-              "local": false,
-              "user": false,
-              "module": "node-red",
-              "version": "4.0.8"
-          },
-          {
-              "id": "node-red/debug",
-              "name": "debug",
-              "types": [
-                  "debug"
-              ],
-              "enabled": true,
-              "local": false,
-              "user": false,
-              "module": "node-red",
-              "version": "4.0.8"
-          }
-      ]
-      """
-      |> Jason.decode!()
-
-    case conn.private[:phoenix_format] do
-      "json" ->
-        json(conn, data)
-
-      "html" ->
-        html(conn, "")
-
-      _ ->
-        # TODO remove this
-        IO.inspect(conn, label: "nodes wrong format type")
-    end
-  end
-
-  def nodes_messages(conn, _params) do
-    data =
-      """
-      {}
       """
       |> Jason.decode!()
 
