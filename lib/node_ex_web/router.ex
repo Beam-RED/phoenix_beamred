@@ -13,6 +13,8 @@ defmodule NodeExWeb.Router do
     plug :accepts, ["json"]
   end
 
+  # TODO implement missing routes from https://github.com/node-red/node-red/blob/master/packages/node_modules/%40node-red/editor-api/lib/admin/index.js
+
   scope "/", NodeExWeb do
     pipe_through :browser
 
@@ -58,11 +60,6 @@ defmodule NodeExWeb.Router do
     get "/", PageController, :flows
     post "/", PageController, :new_flow
   end
-
-  # Other scopes may use custom stacks.
-  # scope "/api", NodeExWeb do
-  #   pipe_through :api
-  # end
 
   # Enable LiveDashboard in development
   if Application.compile_env(:node_ex, :dev_routes) do

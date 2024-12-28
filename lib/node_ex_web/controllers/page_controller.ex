@@ -210,7 +210,16 @@ defmodule NodeExWeb.PageController do
   end
 
   def new_flow(conn, params) do
-    IO.inspect(params)
+    deploytment_type =
+      case get_req_header(conn, "node-red-deployment-type") do
+        ["flows"] -> :flows
+        ["full"] -> :full
+        ["nodes"] -> :nodes
+        ["reload"] -> :reload
+        # TODO print to logger, do not raise
+        type -> raise "Unkown deployment type #{inspect(type)}"
+      end
+      |> IO.inspect(label: "Deployment type")
 
     data =
       """
