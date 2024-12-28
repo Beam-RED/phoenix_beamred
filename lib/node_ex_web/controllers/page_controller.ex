@@ -150,4 +150,32 @@ defmodule NodeExWeb.PageController do
 
     json(conn, data)
   end
+
+  def plugins(conn, _params) do
+    json(conn, "[]")
+  end
+
+  def messages(conn, _params) do
+    json(conn, "{}")
+  end
+
+  def new_user(conn, _params) do
+    json(conn, "{}")
+  end
+
+  def nodes(conn, _params) do
+    html(conn, "")
+  end
+
+  def nodes_messages(conn, _params) do
+    json(conn, "{}")
+  end
+
+  def icons(conn, _params) do
+    json(conn, "{}")
+  end
+
+  def flows(conn, _params) do
+    json(conn, "{}")
+  end
 end

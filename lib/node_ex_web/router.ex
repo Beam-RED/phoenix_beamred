@@ -20,12 +20,35 @@ defmodule NodeExWeb.Router do
   end
 
   scope "/theme", NodeExWeb do
+    pipe_through :api
+
     get "/", PageController, :theme
   end
 
   scope "/settings", NodeExWeb do
+    pipe_through :api
+
     get "/", PageController, :settings
     get "/user", PageController, :user
+    post "/user", PageController, :new_user
+  end
+
+  scope "/plugins", NodeExWeb do
+    get "/", PageController, :plugins
+    get "/messages", PageController, :messages
+  end
+
+  scope "/nodes", NodeExWeb do
+    get "/", PageController, :nodes
+    get "/messages", PageController, :nodes_messages
+  end
+
+  scope "/icons", NodeExWeb do
+    get "/", PageController, :icons
+  end
+
+  scope "/flows", NodeExWeb do
+    get "/", PageController, :flows
   end
 
   # Other scopes may use custom stacks.

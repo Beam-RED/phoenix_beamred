@@ -25,6 +25,16 @@ defmodule NodeExWeb.Endpoint do
     gzip: false,
     only: NodeExWeb.static_paths()
 
+  plug Plug.Static,
+    at: "/red",
+    from: {:node_ex, "priv/static/assets/node-red/public/red"},
+    gzip: false
+
+  plug Plug.Static,
+    at: "/types",
+    from: {:node_ex, "priv/static/assets/node-red/public/types"},
+    gzip: false
+
   # Code reloading can be explicitly enabled under the
   # :code_reloader configuration of your endpoint.
   if code_reloading? do
