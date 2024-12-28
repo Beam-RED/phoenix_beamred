@@ -56,6 +56,7 @@ defmodule NodeExWeb.Router do
 
   scope "/flows", NodeExWeb do
     get "/", PageController, :flows
+    post "/", PageController, :new_flow
   end
 
   # Other scopes may use custom stacks.

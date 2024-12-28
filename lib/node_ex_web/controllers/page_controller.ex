@@ -209,6 +209,18 @@ defmodule NodeExWeb.PageController do
     json(conn, data)
   end
 
+  def new_flow(conn, params) do
+    IO.inspect(params)
+
+    data =
+      """
+      {"rev":"null"}
+      """
+      |> Jason.decode!()
+
+    json(conn, data)
+  end
+
   def nodes(conn, _params) do
     conn = accepts(conn, ["json", "html"])
 
