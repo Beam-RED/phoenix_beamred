@@ -20,6 +20,12 @@ defmodule NodeExWeb.Router do
     get "/comms", WebsocketUpgrade, NodeExWeb.CommsSocket
   end
 
+  scope "/locales", NodeExWeb do
+    pipe_through :api
+
+    get ":file", PageController, :locales
+  end
+
   scope "/theme", NodeExWeb do
     pipe_through :api
 
