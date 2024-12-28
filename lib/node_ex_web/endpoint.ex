@@ -17,7 +17,7 @@ defmodule NodeExWeb.Endpoint do
 
   socket "/comms", NodeExWeb.CommsSocket,
     websocket: true,
-    longpoll: true
+    longpoll: false
 
   # Serve at "/" the static files from "priv/static" directory.
   #
