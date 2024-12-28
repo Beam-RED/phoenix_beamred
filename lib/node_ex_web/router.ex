@@ -18,33 +18,33 @@ defmodule NodeExWeb.Router do
   scope "/", NodeExWeb do
     pipe_through :browser
 
-    get "/", PageController, :home
+    get "/", EditorController, :home
     get "/comms", WebsocketUpgrade, NodeExWeb.CommsSocket
   end
 
   scope "/locales", NodeExWeb do
     pipe_through :api
 
-    get "/:file", PageController, :locales
+    get "/:file", LocalesController, :locales
   end
 
   scope "/theme", NodeExWeb do
     pipe_through :api
 
-    get "/", PageController, :theme
+    get "/", EditorController, :theme
   end
 
   scope "/settings", NodeExWeb do
     pipe_through :api
 
-    get "/", PageController, :settings
-    get "/user", PageController, :user
-    post "/user", PageController, :new_user
+    get "/", SettingsController, :settings
+    get "/user", SettingsController, :user
+    post "/user", SettingsController, :new_user
   end
 
   scope "/plugins", NodeExWeb do
-    get "/", PageController, :plugins
-    get "/messages", PageController, :messages
+    get "/", EditorController, :plugins
+    get "/messages", EditorController, :messages
   end
 
   scope "/nodes", NodeExWeb do
@@ -53,12 +53,12 @@ defmodule NodeExWeb.Router do
   end
 
   scope "/icons", NodeExWeb do
-    get "/", PageController, :icons
+    get "/", EditorController, :icons
   end
 
   scope "/flows", NodeExWeb do
-    get "/", PageController, :flows
-    post "/", PageController, :new_flow
+    get "/", EditorController, :flows
+    post "/", EditorController, :new_flow
   end
 
   # Enable LiveDashboard in development
