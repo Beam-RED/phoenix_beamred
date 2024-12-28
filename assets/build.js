@@ -28,27 +28,6 @@ function copyNodeRedFiles() {
   });
 }
 
-// Bundle jQuery using esbuild
-function bundleJQuery() {
-  console.log("Bundling jQuery...");
-  esbuild
-    .build({
-      entryPoints: [path.join(NODE_MODULES, "jquery", "dist", "jquery.js")],
-      outfile: path.join(OUTPUT_DIR, "vendor", "jquery.js"),
-      bundle: true,
-      minify: true,
-      format: "iife",
-      globalName: "jQuery",
-      logLevel: "info",
-    })
-    .then(() => {
-      console.log("jQuery bundled successfully!");
-    })
-    .catch((err) => {
-      console.error("Error bundling jQuery:", err);
-    });
-}
-
 (async function build() {
   try {
     console.log("Starting build process...");
@@ -58,9 +37,6 @@ function bundleJQuery() {
 
     // Copy Node-RED static files
     copyNodeRedFiles();
-
-    // Bundle jQuery
-    bundleJQuery();
 
     console.log("Build process completed successfully!");
   } catch (error) {
