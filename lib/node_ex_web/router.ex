@@ -13,52 +13,33 @@ defmodule NodeExWeb.Router do
     plug :accepts, ["json"]
   end
 
+  pipeline :nodered do
+    plug :accepts, ["html", "json"]
+    plug :fetch_session
+    plug :fetch_live_flash
+    plug :protect_from_forgery
+    plug :put_secure_browser_headers
+  end
+
   # TODO implement missing routes from https://github.com/node-red/node-red/blob/master/packages/node_modules/%40node-red/editor-api/lib/admin/index.js
 
   scope "/", NodeExWeb do
-    pipe_through :browser
+    pipe_through :nodered
 
     get "/", EditorController, :home
     get "/comms", WebsocketUpgrade, NodeExWeb.CommsSocket
-  end
-
-  scope "/locales", NodeExWeb do
-    pipe_through :api
-
-    get "/:file", LocalesController, :locales
-  end
-
-  scope "/theme", NodeExWeb do
-    pipe_through :api
-
-    get "/", EditorController, :theme
-  end
-
-  scope "/settings", NodeExWeb do
-    pipe_through :api
-
-    get "/", SettingsController, :settings
-    get "/user", SettingsController, :user
-    post "/user", SettingsController, :new_user
-  end
-
-  scope "/plugins", NodeExWeb do
-    get "/", EditorController, :plugins
-    get "/messages", EditorController, :messages
-  end
-
-  scope "/nodes", NodeExWeb do
-    get "/", NodeController, :nodes
-    get "/messages", NodeController, :messages
-  end
-
-  scope "/icons", NodeExWeb do
-    get "/", EditorController, :icons
-  end
-
-  scope "/flows", NodeExWeb do
-    get "/", EditorController, :flows
-    post "/", EditorController, :new_flow
+    get "/locales/:file", LocalesController, :locales
+    get "/theme", SettingsController, :theme
+    get "/settings", SettingsController, :settings
+    get "/settings/user", SettingsController, :user
+    post "/settings/user", SettingsController, :new_user
+    get "/plugins", EditorController, :plugins
+    get "/plugins/messages", EditorController, :messages
+    get "/nodes", NodeController, :nodes
+    get "/nodes/messages", NodeController, :messages
+    get "/icons", EditorController, :icons
+    get "/flows", EditorController, :flows
+    post "/flows", EditorController, :new_flow
   end
 
   # Enable LiveDashboard in development

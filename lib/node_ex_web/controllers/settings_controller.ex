@@ -1,6 +1,35 @@
 defmodule NodeExWeb.SettingsController do
   use NodeExWeb, :controller
 
+  def theme(conn, _params) do
+    data =
+      """
+      {
+          "page": {
+              "title": "Node-RED",
+              "favicon": "favicon.ico",
+              "tabicon": {
+                  "icon": "red/images/node-red-icon-black.svg",
+                  "colour": "#8f0000"
+              }
+          },
+          "header": {
+              "title": "Node-RED",
+              "image": "red/images/node-red.svg"
+          },
+          "asset": {
+              "red": "red/red.min.js",
+              "main": "red/main.min.js",
+              "vendorMonaco": "vendor/monaco/monaco-bootstrap.js"
+          },
+          "themes": []
+      }
+      """
+      |> Jason.decode!()
+
+    json(conn, data)
+  end
+
   def settings(conn, _params) do
     data =
       """

@@ -2,8 +2,6 @@ defmodule NodeExWeb.NodeController do
   use NodeExWeb, :controller
 
   def nodes(conn, _params) do
-    conn = accepts(conn, ["json", "html"])
-
     data =
       """
       [
