@@ -1,0 +1,48 @@
+<script type="text/javascript">
+    RED.nodes.registerType("beam-process", {
+        category: "beam",
+        color: "#a6bbcf",
+        defaults: {
+            name: { value: "" },
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: "file.svg",
+        label: function () {
+            return this.name || "beam-process";
+        },
+        button: {
+            enabled: function () {
+                //return !this.changed;
+                return true;
+            },
+            onclick: function () {
+                if (this.changed) {
+                    return RED.notify(
+                        RED._("notification.warning", {
+                            message: RED._(
+                                "notification.warnings.undeployedChanges",
+                            ),
+                        }),
+                        "warning",
+                    );
+                }
+                RED.comms.send(`nodes/${this.id}`, "inject");
+            },
+        },
+    });
+</script>
+
+<script type="text/html" data-template-name="beam-process">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name" />
+    </div>
+</script>
+
+<script type="text/html" data-help-name="lower-case">
+    <p>
+        A simple node that converts the message payloads into all lower-case
+        characters
+    </p>
+</script>

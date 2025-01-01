@@ -15,7 +15,7 @@ defmodule NodeExWeb.Endpoint do
     websocket: [connect_info: [session: @session_options]],
     longpoll: [connect_info: [session: @session_options]]
 
-  socket "/comms", NodeExWeb.CommsSocket,
+  socket "/comms", NodeExWeb.Channel.CommsSocket,
     websocket: true,
     longpoll: false
 

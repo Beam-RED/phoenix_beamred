@@ -17,7 +17,6 @@ defmodule NodeExWeb.Router do
     plug :accepts, ["html", "json"]
     plug :fetch_session
     plug :fetch_live_flash
-    plug :protect_from_forgery
     plug :put_secure_browser_headers
   end
 
@@ -27,7 +26,7 @@ defmodule NodeExWeb.Router do
     pipe_through :nodered
 
     get "/", EditorController, :home
-    get "/comms", WebsocketUpgrade, NodeExWeb.CommsSocket
+    get "/comms", Channel.WebsocketUpgrade, NodeExWeb.Channel.CommsSocket
     get "/locales/:file", LocalesController, :locales
     get "/theme", SettingsController, :theme
     get "/settings", SettingsController, :settings

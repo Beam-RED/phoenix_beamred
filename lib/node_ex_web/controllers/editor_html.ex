@@ -42,7 +42,7 @@ defmodule NodeExWeb.EditorHTML do
         </script>
         <script src={~p"/assets/node-red/public/red/red.js"}>
         </script>
-        <script src={~p"/assets/node-red/public/red/main.js"}>
+        <script src={~p"/assets/app.js"}>
         </script>
         <script>
           //RED.init();

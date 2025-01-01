@@ -11,6 +11,7 @@ defmodule NodeEx.Application do
       NodeExWeb.Telemetry,
       {DNSCluster, query: Application.get_env(:node_ex, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: NodeEx.PubSub},
+      NodeExWeb.Channel.Server,
       # Start a worker by calling: NodeEx.Worker.start_link(arg)
       # {NodeEx.Worker, arg},
       # Start to serve requests, typically the last entry

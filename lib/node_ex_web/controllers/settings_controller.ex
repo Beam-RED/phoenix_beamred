@@ -70,7 +70,11 @@ defmodule NodeExWeb.SettingsController do
               }
           ],
           "flowFilePretty": true,
-          "externalModules": {},
+          "externalModules": {
+            "palette": {
+              "allowInstall": true
+            }
+          },
           "flowEncryptionType": "system",
           "diagnostics": {
               "enabled": true,
@@ -84,7 +88,9 @@ defmodule NodeExWeb.SettingsController do
           "functionTimeout": 0,
           "tlsConfigDisableLocalFiles": false,
           "editorTheme": {
-              "palette": {},
+              "palette": {
+                "catalogues": []
+              },
               "projects": {
                   "enabled": false,
                   "workflow": {

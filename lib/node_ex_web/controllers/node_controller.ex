@@ -52,6 +52,16 @@ defmodule NodeExWeb.NodeController do
               "user": false,
               "module": "node-red",
               "version": "4.0.8"
+          },
+          {
+              "id": "node-red/beam-process",
+              "name": "beam-process",
+              "types": [
+                  "beam-process"
+              ],
+              "enabled": true,
+              "local": false,
+              "user": false
           }
       ]
       """

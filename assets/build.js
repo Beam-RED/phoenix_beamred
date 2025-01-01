@@ -1,7 +1,10 @@
 const esbuild = require("esbuild");
 const fs = require("fs-extra");
 const path = require("path");
-console.log("tes");
+
+const args = process.argv.slice(2);
+const watch = args.includes("--watch");
+const deploy = args.includes("--deploy");
 
 // Paths
 const OUTPUT_DIR = path.join(__dirname, "..", "priv", "static", "assets");
@@ -67,6 +70,17 @@ function copyNodeRedNodes() {
 
     // Copy Node-RED nodes
     copyNodeRedNodes();
+
+    await esbuild.build({
+      entryPoints: [path.join(__dirname, "js", "app.js")],
+      outdir: OUTPUT_DIR,
+      bundle: true,
+      splitting: false,
+      target: "es2017",
+      format: "esm",
+      minify: deploy,
+      sourcemap: deploy ? undefined : "linked",
+    });
 
     console.log("Build process completed successfully!");
   } catch (error) {
