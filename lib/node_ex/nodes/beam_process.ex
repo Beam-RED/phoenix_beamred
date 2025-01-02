@@ -1,5 +1,9 @@
-<script type="text/javascript">
-    RED.nodes.registerType("beam-process", {
+defmodule NodeEx.Nodes.BeamProcess do
+  use NodeEx.NodeType
+
+  def js(node_name) do
+    """
+    RED.nodes.registerType("#{node_name}", {
         category: "beam",
         color: "#a6bbcf",
         defaults: {
@@ -9,21 +13,27 @@
         outputs: 0,
         icon: "file.svg",
         label: function () {
-            return this.name || "beam-process";
+            return this.name || "#{node_name}";
         },
     });
-</script>
+    """
+  end
 
-<script type="text/html" data-template-name="beam-process">
+  def template(_node_name) do
+    """
     <div class="form-row">
         <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="Name" />
     </div>
-</script>
+    """
+  end
 
-<script type="text/html" data-help-name="beam-process">
+  def help_text(_node_name) do
+    """
     <p>
         A simple node that converts the message payloads into all lower-case
         characters
     </p>
-</script>
+    """
+  end
+end

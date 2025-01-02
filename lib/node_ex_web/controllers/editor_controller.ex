@@ -1,6 +1,8 @@
 defmodule NodeExWeb.EditorController do
   use NodeExWeb, :controller
 
+  alias NodeExWeb.Channel.Server
+
   def home(conn, _params) do
     # The home page is often custom made,
     # so skip the default app layout.
@@ -57,11 +59,9 @@ defmodule NodeExWeb.EditorController do
       """
       |> Jason.decode!()
 
-    NodeExWeb.Channel.Server.publish("notification/runtime-state", %{state: "stop", deploy: true})
-
-    NodeExWeb.Channel.Server.publish("notification/runtime-state", %{state: "start", deploy: true})
-
-    NodeExWeb.Channel.Server.publish("notification/runtime-deploy", %{revision: ""})
+    Server.publish("notification/runtime-state", %{state: "stop", deploy: true})
+    Server.publish("notification/runtime-state", %{state: "start", deploy: true})
+    Server.publish("notification/runtime-deploy", %{revision: ""})
 
     json(conn, data)
   end

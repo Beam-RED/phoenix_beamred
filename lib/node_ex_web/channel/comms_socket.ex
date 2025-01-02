@@ -8,7 +8,6 @@ defmodule NodeExWeb.Channel.CommsSocket do
 
   @impl true
   def init(_params) do
-    Server.add_connection(self())
     time_stamp = :os.system_time(:millisecond)
 
     Process.send_after(self(), {:hb, time_stamp}, @hb_interval)
@@ -26,7 +25,12 @@ defmodule NodeExWeb.Channel.CommsSocket do
   end
 
   defp handle_msg(%{"subscribe" => topic}) do
-    IO.inspect(topic)
+    Server.subscribe([topic])
+  end
+
+  defp handle_msg(%{"topic" => topic, "data" => data}) do
+    node = String.split(topic, "/") |> List.last()
+    send(self(), {:set_status, node, "TEST"})
   end
 
   defp handle_msg(msg) do
@@ -42,6 +46,14 @@ defmodule NodeExWeb.Channel.CommsSocket do
   def handle_info({:hb, time_stamp}, state) do
     Process.send_after(self(), {:hb, time_stamp}, @hb_interval)
     data = [%{topic: "hb", data: time_stamp}] |> Jason.encode!()
+    {:push, {:text, data}, state}
+  end
+
+  def handle_info({:set_status, node, text}, state) do
+    data =
+      [%{topic: "status/#{node}", data: %{text: text, fill: "red", shape: "ring"}}]
+      |> Jason.encode!()
+
     {:push, {:text, data}, state}
   end
 

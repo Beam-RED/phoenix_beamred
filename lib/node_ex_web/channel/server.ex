@@ -1,55 +1,104 @@
 defmodule NodeExWeb.Channel.Server do
-  @moduledoc false
+  alias NodeExWeb.Channel.Subscriptions
   use GenServer
-
   require Logger
 
-  defstruct connections: []
+  @type package_identifier() :: 0x0001..0xFFFF | nil
+  @type topic() :: String.t()
+  @type topic_filter() :: String.t()
+  @type payload() :: binary() | nil
 
-  def start_link(_opts) do
-    GenServer.start_link(__MODULE__, %__MODULE__{}, name: __MODULE__)
+  @doc """
+  Starts new MQTT server and links it to the current process
+  """
+  def start_link(_) do
+    GenServer.start_link(__MODULE__, nil, name: __MODULE__)
   end
 
-  def init(state) do
-    {:ok, state}
+  @spec subscribe([topic_filter()]) :: :ok
+  def subscribe(topics) do
+    GenServer.call(__MODULE__, {:subscribe, topics})
   end
 
-  def add_connection(client) do
-    GenServer.call(__MODULE__, {:add_connection, client})
+  @spec unsubscribe([topic_filter()] | :all) :: :ok
+  def unsubscribe(topics) do
+    GenServer.call(__MODULE__, {:unsubscribe, topics})
   end
 
-  def remove_connection(client) do
-    GenServer.call(__MODULE__, {:remove_connection, client})
+  @spec publish(topic(), payload()) :: :ok
+  def publish(topic, payload) do
+    GenServer.cast(__MODULE__, {:publish, topic, payload})
   end
 
-  def subscribe(client, topic) do
-    GenServer.call(__MODULE__, {:subscribe, client, topic})
+  @impl true
+  def init(_) do
+    {:ok, {Subscriptions.new(), %{}}}
   end
 
-  def publish(topic, data) do
-    GenServer.call(__MODULE__, {:publish, topic, data})
+  @impl true
+  def handle_call({:subscribe, topics}, {from, _}, {subscriptions, monitors}) do
+    case Subscriptions.subscribe(subscriptions, from, topics) do
+      :error ->
+        {:reply, :error, subscriptions}
+
+      new_subscriptions ->
+        reference = Process.monitor(from)
+        new_monitors = Map.put(monitors, from, reference)
+        {:reply, :ok, {new_subscriptions, new_monitors}}
+    end
   end
 
-  def handle_call({:add_connection, client}, _from, state) do
-    new_state = %{state | connections: [client | state.connections]}
-    {:reply, :ok, new_state}
+  @impl true
+  def handle_call({:unsubscribe, topics}, {from, _}, {subscriptions, monitors} = state) do
+    case Subscriptions.unsubscribe(subscriptions, from, topics) do
+      :error ->
+        {:reply, :error, state}
+
+      {:empty, new_subscriptions} ->
+        new_monitors =
+          case Map.fetch(monitors, from) do
+            {:ok, monitor_ref} ->
+              Process.demonitor(monitor_ref)
+              Map.delete(monitors, from)
+
+            _ ->
+              monitors
+          end
+
+        {:reply, :ok, {new_subscriptions, new_monitors}}
+
+      {:not_empty, new_subscriptions} ->
+        {:reply, :ok, {new_subscriptions, monitors}}
+    end
   end
 
-  def handle_call({:remove_connection, client}, _from, state) do
-    new_connections = Enum.reject(state.connections, fn c -> c == client end)
-    new_state = %{state | connections: new_connections}
-    {:reply, :ok, new_state}
+  @impl true
+  def handle_cast({:publish, topic, payload}, {subscriptions, _} = state) do
+    case Subscriptions.list_matched(subscriptions, topic) do
+      :error ->
+        {:noreply, state}
+
+      pids ->
+        for pid <- pids do
+          Logger.debug(
+            "Sending message published to topic #{topic} to subscriber #{inspect(pid)}"
+          )
+
+          send(pid, {:publish, topic, payload})
+        end
+
+        {:noreply, state}
+    end
   end
 
-  def handle_call({:subscribe, client, topic}, _from, state) do
-    {:rely, :ok, state}
-  end
+  @impl true
+  def handle_info({:DOWN, _ref, :process, pid, _reason}, {subscriptions, monitors}) do
+    Logger.info("Subscriber #{inspect(pid)} exited. Removing its subscriptions")
+    new_monitors = Map.delete(monitors, pid)
 
-  def handle_call({:publish, topic, data}, _from, state) do
-    Enum.each(state.connections, fn connection ->
-      send(connection, {:publish, topic, data})
-    end)
-
-    {:reply, :ok, state}
+    case Subscriptions.unsubscribe(subscriptions, pid, :all) do
+      :error -> {:noreply, {subscriptions, new_monitors}}
+      {_, new_subscriptions} -> {:noreply, {new_subscriptions, new_monitors}}
+    end
   end
 end

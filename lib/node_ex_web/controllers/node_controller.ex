@@ -62,6 +62,16 @@ defmodule NodeExWeb.NodeController do
               "enabled": true,
               "local": false,
               "user": false
+          },
+          {
+              "id": "node-red/beam-send",
+              "name": "beam-send",
+              "types": [
+                  "beam-send"
+              ],
+              "enabled": true,
+              "local": false,
+              "user": false
           }
       ]
       """
