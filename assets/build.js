@@ -14,13 +14,13 @@ const NODE_RED_SOURCE = path.join(
   "@node-red",
   "editor-client",
 );
+const XTERM_SOURCE = path.join(__dirname, "node_modules", "@xterm", "xterm");
 const NODES_SOURCE = path.join(__dirname, "nodes");
 const NODE_MODULES = path.join(__dirname, "node_modules");
 
 // Ensure output directory exists
 fs.ensureDirSync(OUTPUT_DIR);
 
-// Copy Node-RED Editor Client static files
 function copyNodeRedFiles() {
   console.log("Copying Node-RED Editor Client files...");
   const staticDirs = ["locales", "public"];
@@ -65,14 +65,23 @@ function copyNodeRedNodes() {
     // Clean the output directory
     fs.emptyDirSync(OUTPUT_DIR);
 
-    // Copy Node-RED static files
     copyNodeRedFiles();
 
-    // Copy Node-RED nodes
     copyNodeRedNodes();
 
     await esbuild.build({
       entryPoints: [path.join(__dirname, "js", "app.js")],
+      outdir: OUTPUT_DIR,
+      bundle: true,
+      splitting: false,
+      target: "es2017",
+      format: "esm",
+      minify: deploy,
+      sourcemap: deploy ? undefined : "linked",
+    });
+
+    await esbuild.build({
+      entryPoints: [path.join(__dirname, "js", "xterm.js")],
       outdir: OUTPUT_DIR,
       bundle: true,
       splitting: false,

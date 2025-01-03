@@ -41,6 +41,12 @@ defmodule NodeExWeb.Router do
     post "/flows", EditorController, :new_flow
   end
 
+  scope "/xterm", NodeExWeb do
+    pipe_through(:browser)
+
+    get "/", XtermController, :home
+  end
+
   # Enable LiveDashboard in development
   if Application.compile_env(:node_ex, :dev_routes) do
     # If you want to use the LiveDashboard in production, you should put
