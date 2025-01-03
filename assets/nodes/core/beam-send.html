@@ -27,7 +27,7 @@
                         "warning",
                     );
                 }
-                RED.comms.send(`nodes/send/${this.id}`, this.msg);
+                RED.comms.send(`notification/node/${this.id}`, "send");
             },
         },
     });
