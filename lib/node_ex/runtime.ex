@@ -143,15 +143,12 @@ defmodule NodeEx.Runtime do
     case Workspace.apply_operation(state.workspace, operation) do
       {:ok, new_workspace, actions} ->
         %{state | workspace: new_workspace}
-        |> after_operation(state, operation)
         |> handle_actions(actions)
 
       :error ->
         state
     end
   end
-
-  defp after_operation(state, _prev_state, _operation), do: state
 
   defp handle_actions(state, actions) do
     Enum.reduce(actions, state, &handle_action(&2, &1))
