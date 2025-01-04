@@ -1,4 +1,4 @@
-defmodule NodeEx.Workspace.Node do
+defmodule NodeEx.Runtime.Workspace.Node do
   # Data structure representing a single node in a workspace.
 
   defstruct [

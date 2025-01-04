@@ -1,4 +1,4 @@
-defmodule NodeEx.Workspace.Flow do
+defmodule NodeEx.Runtime.Workspace.Flow do
   # Data structure representing a single flow in a workspace.
 
   defstruct [:id, :name, :nodes]
@@ -11,18 +11,19 @@ defmodule NodeEx.Workspace.Flow do
   @type t :: %__MODULE__{
           id: id(),
           name: String.t(),
-          nodes: list(Node.t())
+          nodes: %{id() => Node.t()}
         }
 
   @doc """
-  Returns a blank flow.
+  Returns a new flow.
   """
-  @spec new() :: t()
-  def new() do
+  @spec new(map()) :: t()
+  def new(flow) do
     %__MODULE__{
       id: nil,
       name: nil,
-      nodes: []
+      nodes: %{}
     }
+    |> struct(flow)
   end
 end

@@ -42,8 +42,8 @@ defmodule NodeExWeb.EditorController do
   def new_flow(conn, params) do
     deployment_type =
       case get_req_header(conn, "node-red-deployment-type") do
-        ["flows"] -> :flows
         ["full"] -> :full
+        ["flows"] -> :flows
         ["nodes"] -> :nodes
         ["reload"] -> :reload
         # TODO print to logger, do not raise
@@ -59,6 +59,8 @@ defmodule NodeExWeb.EditorController do
       """
       |> Jason.decode!()
 
+    NodeEx.Runtime.handle_update_workspace(params)
+    # TODO send this from runtime
     Server.publish("notification/runtime-state", %{state: "stop", deploy: true})
     Server.publish("notification/runtime-state", %{state: "start", deploy: true})
     Server.publish("notification/runtime-deploy", %{revision: ""})

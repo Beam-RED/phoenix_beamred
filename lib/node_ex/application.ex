@@ -8,6 +8,7 @@ defmodule NodeEx.Application do
   @impl true
   def start(_type, _args) do
     children = [
+      NodeEx.Runtime,
       NodeEx.Runtime.Evaluator,
       NodeExWeb.Telemetry,
       {DNSCluster, query: Application.get_env(:node_ex, :dns_cluster_query) || :ignore},
