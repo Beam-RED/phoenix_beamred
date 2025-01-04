@@ -62,7 +62,7 @@ defmodule NodeExWeb.EditorController do
       # TODO send this from runtime
       Server.publish("notification/runtime-state", %{state: "stop", deploy: true})
       Server.publish("notification/runtime-state", %{state: "start", deploy: true})
-      Server.publish("notification/runtime-deploy", %{revision: ""})
+      Server.publish("notification/runtime-deploy", %{revision: new_rev})
 
       json(conn, %{rev: new_rev})
     else
