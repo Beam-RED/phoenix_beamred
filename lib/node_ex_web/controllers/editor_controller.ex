@@ -40,7 +40,7 @@ defmodule NodeExWeb.EditorController do
     json(conn, data)
   end
 
-  def new_flow(conn, params) do
+  def new_flow(conn, %{"flows" => flows} = params) do
     deployment_type =
       case get_req_header(conn, "node-red-deployment-type") do
         ["full"] -> :full
@@ -53,21 +53,22 @@ defmodule NodeExWeb.EditorController do
     IO.inspect(deployment_type, label: "Deployment Type")
     IO.inspect(params)
 
-    if NodeEx.Storage.get_rev() != params["rev"] do
-      conn
-      |> put_status(409)
-      |> json(%{code: "version_mismatch", message: "Error"})
-      |> halt()
-    else
-      new_rev = NodeEx.Storage.save_flows(params["flows"])
+    rev = params["rev"]
 
-      NodeEx.Runtime.deploy_flows(params["flows"], deployment_type)
+    if !rev || rev == NodeEx.Storage.get_rev() do
+      new_rev = NodeEx.Storage.save_flows(flows)
+
+      NodeEx.Runtime.deploy_flows(flows, deployment_type)
       # TODO send this from runtime
       Server.publish("notification/runtime-state", %{state: "stop", deploy: true})
       Server.publish("notification/runtime-state", %{state: "start", deploy: true})
       Server.publish("notification/runtime-deploy", %{revision: ""})
 
       json(conn, %{rev: new_rev})
+    else
+      conn
+      |> put_status(409)
+      |> json(%{code: "version_mismatch", message: "Error"})
     end
   end
 
