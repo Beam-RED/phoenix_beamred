@@ -54,19 +54,21 @@ defmodule NodeExWeb.EditorController do
     IO.inspect(params)
 
     if NodeEx.Storage.get_rev() != params["rev"] do
-      # TODO handle this case
-      IO.inspect("Different revision number")
+      conn
+      |> put_status(409)
+      |> json(%{code: "version_mismatch", message: "Error"})
+      |> halt()
+    else
+      new_rev = NodeEx.Storage.save_flows(params["flows"])
+
+      NodeEx.Runtime.deploy_flows(params["flows"], deployment_type)
+      # TODO send this from runtime
+      Server.publish("notification/runtime-state", %{state: "stop", deploy: true})
+      Server.publish("notification/runtime-state", %{state: "start", deploy: true})
+      Server.publish("notification/runtime-deploy", %{revision: ""})
+
+      json(conn, %{rev: new_rev})
     end
-
-    new_rev = NodeEx.Storage.save_flows(params["flows"])
-
-    NodeEx.Runtime.deploy_flows(params["flows"], deployment_type)
-    # TODO send this from runtime
-    Server.publish("notification/runtime-state", %{state: "stop", deploy: true})
-    Server.publish("notification/runtime-state", %{state: "start", deploy: true})
-    Server.publish("notification/runtime-deploy", %{revision: ""})
-
-    json(conn, %{rev: new_rev})
   end
 
   def icons(conn, _params) do
