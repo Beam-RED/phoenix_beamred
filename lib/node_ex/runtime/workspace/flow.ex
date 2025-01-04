@@ -26,4 +26,9 @@ defmodule NodeEx.Runtime.Workspace.Flow do
     }
     |> struct(flow)
   end
+
+  @spec insert_node(t(), Node.id(), Node.t()) :: t()
+  def insert_node(flow, node_id, node) do
+    %{flow | nodes: Map.put(flow.nodes, node_id, node)}
+  end
 end

@@ -2,6 +2,7 @@ defmodule NodeExWeb.EditorController do
   use NodeExWeb, :controller
 
   alias NodeExWeb.Channel.Server
+  alias NodeEx.Runtime
 
   def home(conn, _params) do
     # The home page is often custom made,
@@ -59,7 +60,7 @@ defmodule NodeExWeb.EditorController do
       """
       |> Jason.decode!()
 
-    NodeEx.Runtime.handle_update_workspace(params)
+    NodeEx.Runtime.deploy_flows(params["flows"], deployment_type)
     # TODO send this from runtime
     Server.publish("notification/runtime-state", %{state: "stop", deploy: true})
     Server.publish("notification/runtime-state", %{state: "start", deploy: true})

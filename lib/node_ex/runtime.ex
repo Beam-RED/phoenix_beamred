@@ -12,9 +12,11 @@ defmodule NodeEx.Runtime do
 
   use GenServer
 
+  alias NodeEx.Runtime.Evaluator
   alias NodeEx.Runtime.Workspace
+  alias NodeEx.User
 
-  @timeout :ininity
+  @timeout :infinity
   @client_id "__server__"
   @anonymous_client_id "__anonymous__"
 
@@ -28,15 +30,42 @@ defmodule NodeEx.Runtime do
   end
 
   @doc """
+  Register a new client.
   """
   @spec register_client(pid(), User.t()) :: {Workspace.t(), Workspace.client_id()}
   def register_client(client_pid, user) do
     GenServer.call(__MODULE__, {:register_client, client_pid, user}, @timeout)
   end
 
+  @doc """
+  Returns the current workspace structure.
+  """
+  @spec get_workspace() :: Workspace.t()
+  def get_workspace() do
+    GenServer.call(__MODULE__, :get_workspace, @timeout)
+  end
+
+  @doc """
+  Adds new flow to workspace.
+  """
   @spec insert_flow(map()) :: :ok
   def insert_flow(flow) do
     GenServer.cast(__MODULE__, {:insert_flow, self(), flow})
+  end
+
+  @doc """
+  Adds new node to flow.
+  """
+  @spec insert_node(Flow.id(), map()) :: :ok
+  def insert_node(flow_id, node) do
+    GenServer.cast(__MODULE__, {:insert_node, self(), flow_id, node})
+  end
+
+  @doc """
+  """
+  @spec deploy_flows(map(), Workspace.deployment_type()) :: :ok
+  def deploy_flows(json_flows, deployment_type) do
+    GenServer.cast(__MODULE__, {:deploy_flows, self(), json_flows, deployment_type})
   end
 
   ## Callback
@@ -68,11 +97,30 @@ defmodule NodeEx.Runtime do
   end
 
   @impl true
+  def handle_call(:get_workspace, _from, state) do
+    {:reply, state.workspace, state}
+  end
+
+  @impl true
   def handle_cast({:insert_flow, client_pid, flow}, state) do
     client_id = client_id(state, client_pid)
     # TODO: what happens if key id is not given?
     id = Map.get(flow, "id")
     operation = {:insert_flow, client_id, id, flow}
+    {:noreply, handle_operation(state, operation)}
+  end
+
+  def handle_cast({:insert_node, client_pid, flow_id, node}, state) do
+    client_id = client_id(state, client_pid)
+    # TODO: what happens if key id is not given?
+    node_id = Map.get(node, "id")
+    operation = {:insert_node, client_id, flow_id, node_id, node}
+    {:noreply, handle_operation(state, operation)}
+  end
+
+  def handle_cast({:deploy_flows, client_pid, json_flows, deployment_type}, state) do
+    client_id = client_id(state, client_pid)
+    operation = {:deploy_flows, client_id, json_flows, deployment_type}
     {:noreply, handle_operation(state, operation)}
   end
 
@@ -84,9 +132,13 @@ defmodule NodeEx.Runtime do
       else
         state
       end
+
+    {:noreply, state}
   end
 
   defp handle_operation(state, operation) do
+    # TODO broadcast operation to all clients
+
     case Workspace.apply_operation(state.workspace, operation) do
       {:ok, new_workspace, actions} ->
         %{state | workspace: new_workspace}
@@ -100,7 +152,26 @@ defmodule NodeEx.Runtime do
 
   defp after_operation(state, _prev_state, _operation), do: state
 
-  defp handle_actions(state, _action), do: state
+  defp handle_actions(state, actions) do
+    Enum.reduce(actions, state, &handle_action(&2, &1))
+  end
+
+  defp handle_action(state, {:deploy, _deployment_type}) do
+    # TODO use different deployment stratgies
+    IO.inspect(state, label: "YJKL:")
+    IEx.Helpers.respawn()
+
+    expr =
+      NodeEx.Runtime.Expr.new("""
+      defmodule Hello do
+      def world, do: "Hello World"
+      end
+      """)
+
+    Evaluator.execute([expr])
+  end
+
+  defp handle_action(state, _action), do: state
 
   defp client_id(state, client_pid) do
     state.client_pids_with_id[client_pid] || @anonymous_client_id

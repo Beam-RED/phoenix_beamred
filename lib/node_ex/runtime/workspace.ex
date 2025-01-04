@@ -5,6 +5,7 @@ defmodule NodeEx.Runtime.Workspace do
 
   defstruct [
     :flows,
+    :changes,
     :revision,
     :dirty,
     :clients_map
@@ -16,6 +17,7 @@ defmodule NodeEx.Runtime.Workspace do
 
   @type t :: %__MODULE__{
           flows: %{id() => Flow.t()},
+          changes: Changes.t(),
           revision: non_neg_integer() | nil,
           dirty: boolean(),
           clients_map: %{client_id() => User.id()}
@@ -32,6 +34,7 @@ defmodule NodeEx.Runtime.Workspace do
           | {:insert_node, client_id(), Flow.id(), Node.id(), map()}
           | {:delete_flow, client_id(), Flow.id()}
           | {:delete_node, Node.id()}
+          | {:deploy_flows, client_id(), map(), deployment_type()}
 
   @type action ::
           {:start_evaluation, Flow.t()}
@@ -44,7 +47,9 @@ defmodule NodeEx.Runtime.Workspace do
   def new(opts \\ []) do
     %__MODULE__{
       flows: %{},
-      revision: nil
+      revision: nil,
+      dirty: true,
+      clients_map: %{}
     }
   end
 
@@ -86,6 +91,46 @@ defmodule NodeEx.Runtime.Workspace do
     |> wrap_ok()
   end
 
+  def apply_operation(workspace, {:insert_node, _client_id, flow_id, node_id, node}) do
+    node = Node.new(node)
+
+    workspace
+    |> with_actions()
+    |> insert_node(flow_id, node_id, node)
+    |> set_dirty()
+    |> wrap_ok()
+  end
+
+  def apply_operation(workspace, {:deploy_flows, _client_id, json_flows, deployment_type}) do
+    flows =
+      json_flows
+      |> Enum.filter(fn f -> f["type"] == "tab" end)
+      |> Enum.reduce(%{}, fn f, flows ->
+        flow_id = f["id"]
+        flow = Flow.new(f)
+        Map.put(flows, flow_id, flow)
+      end)
+
+    flows =
+      json_flows
+      |> Enum.reject(fn f -> f["type"] in ["tab", "group", "subnode"] end)
+      |> Enum.reduce(flows, fn n, flows ->
+        flow_id = n["z"]
+        node_id = n["id"]
+        node = Node.new(n)
+        put_in(flows, [Access.key(flow_id), Access.key(:nodes), Access.key(node_id)], node)
+      end)
+
+    # TODO save changes
+
+    workspace
+    |> with_actions()
+    |> update_flows(flows)
+    |> add_action({:deploy, deployment_type})
+    |> set_dirty()
+    |> wrap_ok()
+  end
+
   defp add_action({workspace, actions}, action) do
     {workspace, actions ++ [action]}
   end
@@ -121,6 +166,21 @@ defmodule NodeEx.Runtime.Workspace do
   defp insert_flow({workspace, _} = workspace_actions, id, flow) do
     flows = Map.put(workspace.flows, id, flow)
 
+    workspace_actions
+    |> set!(flows: flows)
+  end
+
+  defp insert_node({workspace, _} = workspace_actions, flow_id, node_id, node) do
+    flows =
+      update_in(workspace.flows, [Access.key(flow_id)], fn flow ->
+        %{flow | nodes: Map.put(flow.nodes, node_id, node)}
+      end)
+
+    workspace_actions
+    |> set!(flows: flows)
+  end
+
+  defp update_flows({workspace, _} = workspace_actions, flows) do
     workspace_actions
     |> set!(flows: flows)
   end

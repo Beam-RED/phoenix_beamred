@@ -4,32 +4,29 @@ defmodule NodeEx.Runtime.Workspace.Node do
   defstruct [
     :id,
     :name,
-    :type,
-    :outputs
+    :type
   ]
 
   alias NodeEx.Utils
-  alias NodeEx.Workspace.Node
 
   @type id :: Utils.id()
 
   @type t :: %__MODULE__{
           id: id(),
           name: String.t(),
-          type: atom(),
-          outputs: list(Node.t())
+          type: atom()
         }
 
   @doc """
   Returns a empty node.
   """
-  @spec new() :: t()
-  def new() do
+  @spec new(map()) :: t()
+  def new(node) do
     %__MODULE__{
       id: nil,
       name: "",
-      type: :function,
-      outputs: []
+      type: :function
     }
+    |> struct(node)
   end
 end
