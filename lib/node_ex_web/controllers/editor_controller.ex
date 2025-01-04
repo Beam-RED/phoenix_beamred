@@ -47,8 +47,7 @@ defmodule NodeExWeb.EditorController do
         ["flows"] -> :flows
         ["nodes"] -> :nodes
         ["reload"] -> :reload
-        # TODO print to logger, do not raise
-        type -> raise "Unkown deployment type #{inspect(type)}"
+        _ -> :full
       end
 
     IO.inspect(deployment_type, label: "Deployment Type")
