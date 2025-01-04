@@ -53,11 +53,12 @@ defmodule NodeExWeb.EditorController do
     IO.inspect(deployment_type, label: "Deployment Type")
     IO.inspect(params)
 
-    data =
-      """
-      {"rev":"null"}
-      """
-      |> Jason.decode!()
+    if NodeEx.Storage.get_rev() != params["rev"] do
+      # TODO handle this case
+      IO.inspect("Different revision number")
+    end
+
+    new_rev = NodeEx.Storage.save_flows(params["flows"])
 
     NodeEx.Runtime.deploy_flows(params["flows"], deployment_type)
     # TODO send this from runtime
@@ -65,7 +66,7 @@ defmodule NodeExWeb.EditorController do
     Server.publish("notification/runtime-state", %{state: "start", deploy: true})
     Server.publish("notification/runtime-deploy", %{revision: ""})
 
-    json(conn, data)
+    json(conn, %{rev: new_rev})
   end
 
   def icons(conn, _params) do
@@ -79,14 +80,8 @@ defmodule NodeExWeb.EditorController do
   end
 
   def flows(conn, _params) do
-    data =
-      """
-      {
-      "flows": []
-      }
-      """
-      |> Jason.decode!()
+    {rev, flows} = NodeEx.Storage.get_flows()
 
-    json(conn, data)
+    json(conn, %{flows: flows, rev: rev})
   end
 end

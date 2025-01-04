@@ -25,6 +25,7 @@ defmodule NodeEx.Runtime do
           client_pids_with_id: %{pid() => Workspace.client_id()}
         }
 
+  @spec start_link(keyword()) :: GenServer.on_start()
   def start_link(_) do
     GenServer.start_link(__MODULE__, %{}, name: __MODULE__)
   end

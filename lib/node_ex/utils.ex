@@ -44,7 +44,7 @@ defmodule NodeEx.Utils do
           v2
         end
       end)
-      |> Map.filter(fn _k, v -> v end)
+      |> Map.filter(fn {_k, v} -> v end)
 
     %{added: added, removed: removed, changed: changed}
   end

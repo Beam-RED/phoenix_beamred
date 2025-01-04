@@ -18,7 +18,7 @@ defmodule NodeEx.Runtime.Workspace do
   @type t :: %__MODULE__{
           flows: %{id() => Flow.t()},
           changes: Changes.t(),
-          revision: non_neg_integer() | nil,
+          revision: String.t(),
           dirty: boolean(),
           clients_map: %{client_id() => User.id()}
         }
@@ -47,7 +47,7 @@ defmodule NodeEx.Runtime.Workspace do
   def new(opts \\ []) do
     %__MODULE__{
       flows: %{},
-      revision: nil,
+      revision: :crypto.hash(:sha256, "[]") |> Base.encode16(case: :lower),
       dirty: true,
       clients_map: %{}
     }
