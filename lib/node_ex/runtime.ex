@@ -15,6 +15,7 @@ defmodule NodeEx.Runtime do
   alias NodeEx.Runtime.Evaluator
   alias NodeEx.Runtime.Workspace
   alias NodeEx.User
+  alias NodeEx.Utils
 
   @timeout :infinity
   @client_id "__server__"
@@ -36,6 +37,14 @@ defmodule NodeEx.Runtime do
   @spec register_client(pid(), User.t()) :: {Workspace.t(), Workspace.client_id()}
   def register_client(client_pid, user) do
     GenServer.call(__MODULE__, {:register_client, client_pid, user}, @timeout)
+  end
+
+  @doc """
+  Subscribes to runtimes messages.
+  """
+  @spec subscribe() :: :ok | {:error, term()}
+  def subscribe() do
+    Phoenix.PubSub.subscribe(NodeEx.PubSub, "runtime")
   end
 
   @doc """
@@ -94,7 +103,7 @@ defmodule NodeEx.Runtime do
         {state, client_id}
       end
 
-    {:reply, {state.data, client_id}, state}
+    {:reply, {state.workspace, client_id}, state}
   end
 
   @impl true
@@ -138,17 +147,20 @@ defmodule NodeEx.Runtime do
   end
 
   defp handle_operation(state, operation) do
-    # TODO broadcast operation to all clients
+    broadcast_operation(operation)
 
     case Workspace.apply_operation(state.workspace, operation) do
       {:ok, new_workspace, actions} ->
         %{state | workspace: new_workspace}
+        |> after_operation(state, operation)
         |> handle_actions(actions)
 
       :error ->
         state
     end
   end
+
+  defp after_operation(state, _prev_state, _operation), do: state
 
   defp handle_actions(state, actions) do
     Enum.reduce(actions, state, &handle_action(&2, &1))
@@ -159,17 +171,37 @@ defmodule NodeEx.Runtime do
     IO.inspect(state, label: "YJKL:")
     IEx.Helpers.respawn()
 
-    expr =
+    expr1 =
       NodeEx.Runtime.Expr.new("""
       defmodule Hello do
       def world, do: "Hello World"
       end
       """)
 
-    Evaluator.execute([expr])
+    expr2 =
+      NodeEx.Runtime.Expr.new("""
+      defmodule Hello2 do
+      def world, do: "Hello world"
+      end
+      """)
+
+    # Evaluator.evaluate([expr1, expr2])
+    state
   end
 
   defp handle_action(state, _action), do: state
+
+  defp broadcast_operation(operation) do
+    broadcast_message({:operation, operation})
+  end
+
+  defp broadcast_error(error) do
+    broadcast_message({:error, error})
+  end
+
+  defp broadcast_message(message) do
+    Phoenix.PubSub.broadcast(NodeEx.PubSub, "runtime", message)
+  end
 
   defp client_id(state, client_pid) do
     state.client_pids_with_id[client_pid] || @anonymous_client_id

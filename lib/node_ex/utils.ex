@@ -16,7 +16,7 @@ defmodule NodeEx.Utils do
   """
   @spec random_long_id() :: id()
   def random_long_id() do
-    :crytpo.strong_rand_bytes(20) |> Base.encode32(case: :lower)
+    :crypto.strong_rand_bytes(20) |> Base.encode32(case: :lower)
   end
 
   @doc """

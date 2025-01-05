@@ -2,7 +2,6 @@ defmodule NodeExWeb.EditorController do
   use NodeExWeb, :controller
 
   alias NodeExWeb.Channel.Server
-  alias NodeEx.Runtime
 
   def home(conn, _params) do
     # The home page is often custom made,
@@ -59,10 +58,6 @@ defmodule NodeExWeb.EditorController do
       new_rev = NodeEx.Storage.save_flows(flows)
 
       NodeEx.Runtime.deploy_flows(flows, deployment_type)
-      # TODO send this from runtime
-      Server.publish("notification/runtime-state", %{state: "stop", deploy: true})
-      Server.publish("notification/runtime-state", %{state: "start", deploy: true})
-      Server.publish("notification/runtime-deploy", %{revision: new_rev})
 
       json(conn, %{rev: new_rev})
     else

@@ -21,7 +21,6 @@ defmodule NodeExWeb.Router do
   end
 
   # TODO implement missing routes from https://github.com/node-red/node-red/blob/master/packages/node_modules/%40node-red/editor-api/lib/admin/index.js
-
   scope "/", NodeExWeb do
     pipe_through :nodered
 
