@@ -77,9 +77,6 @@ defmodule NodeEx.Runtime.Evaluator do
       rescue
         e ->
           send(:erlang.list_to_pid(~c"#{normalized_pid}"), {:iex_reply, :erlang.list_to_ref(~c"#{normalized_ref}"), :rescue})
-      catch
-        e ->
-        send(:erlang.list_to_pid(~c"#{normalized_pid}"), {:iex_reply, :erlang.list_to_ref(~c"#{normalized_ref}"), :catch})
       else
         result ->
           send(:erlang.list_to_pid(~c"#{normalized_pid}"), {:iex_reply, :erlang.list_to_ref(~c"#{normalized_ref}"), true})
