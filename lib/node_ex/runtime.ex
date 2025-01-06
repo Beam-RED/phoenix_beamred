@@ -172,20 +172,21 @@ defmodule NodeEx.Runtime do
     IEx.Helpers.respawn()
 
     expr1 =
-      NodeEx.Runtime.Expr.new("""
+      """
       defmodule Hello do
       def world, do: "Hello World"
       end
-      """)
+      """
 
     expr2 =
-      NodeEx.Runtime.Expr.new("""
+      """
       defmodule Hello2 do
       def world, do: "Hello world"
       end
-      """)
+      """
 
-    # Evaluator.evaluate([expr1, expr2])
+    Evaluator.evaluate_code(expr1) |> IO.inspect(label: "expr1")
+    Evaluator.evaluate_code(expr2) |> IO.inspect(label: "expr2")
     state
   end
 

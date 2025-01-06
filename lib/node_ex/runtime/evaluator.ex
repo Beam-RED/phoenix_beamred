@@ -4,69 +4,39 @@ defmodule NodeEx.Runtime.Evaluator do
 
   # Client API
 
-  def test() do
-    expr =
-      NodeEx.Runtime.Expr.new("""
-      defmodule Hello do
-        def world, do: "Hello world"
-      end
-      """)
-
-    execute([expr])
-  end
-
   def start_link(_opts) do
     GenServer.start_link(__MODULE__, %{}, name: __MODULE__)
   end
 
-  def execute(exprs, opts \\ []) do
-    GenServer.call(__MODULE__, {:execute, exprs, opts}, :infinity)
+  @doc """
+  Sends code to iex and waits for the evaluation response.
+  """
+  def evaluate_code(code, opts \\ []) do
+    GenServer.call(__MODULE__, {:evaluate, code, opts}, :infinity)
   end
 
   # Server Callbacks
 
   @impl true
-  def init(state) do
-    {:ok, %{caller: nil, refs: []}}
-  end
-
-  @impl true
-  def handle_call({:execute, exprs, opts}, from, state) do
-    refs =
-      exprs
-      |> Enum.map(fn %NodeEx.Runtime.Expr{} = _expr ->
-        make_ref()
-      end)
-
-    send(self(), {:start_evaluation, exprs})
-
-    {:noreply, %{state | caller: from, refs: refs}}
-  end
-
-  @impl true
-  def handle_info({:start_evaluation, exprs}, %{refs: refs} = state) do
+  def init(_) do
     {iex_evaluator, iex_server} =
       IEx.Broker.evaluator()
+      |> IO.inspect(label: Runtime.Evaluator)
 
-    Enum.each(Enum.zip(refs, exprs), fn {ref, expr} ->
-      do_execute_code(iex_evaluator, iex_server, ref, expr.code)
-    end)
+    state =
+      %{
+        caller: nil,
+        ref: nil,
+        iex_evaluator: iex_evaluator,
+        iex_server: iex_server
+      }
 
-    {:noreply, state}
+    {:ok, state}
   end
 
-  def handle_info({:iex_reply, ref, test}, %{caller: caller, refs: refs} = state) do
-    case List.delete(refs, ref) do
-      [] ->
-        GenServer.reply(caller, :ok)
-        {:noreply, %{state | caller: nil, refs: []}}
-
-      refs ->
-        {:noreply, %{state | refs: refs}}
-    end
-  end
-
-  defp do_execute_code(iex_evaluator, iex_server, ref, code) when is_binary(code) do
+  @impl true
+  def handle_call({:evaluate, code, _opts}, from, %{caller: nil} = state) do
+    ref = make_ref()
     normalized_pid = :erlang.pid_to_list(self())
     normalized_ref = :erlang.ref_to_list(ref)
 
@@ -75,15 +45,31 @@ defmodule NodeEx.Runtime.Evaluator do
       try do
         #{code}
       rescue
-        e ->
-          send(:erlang.list_to_pid(~c"#{normalized_pid}"), {:iex_reply, :erlang.list_to_ref(~c"#{normalized_ref}"), :rescue})
+        error ->
+          send(:erlang.list_to_pid(~c"#{normalized_pid}"), {:iex_reply, :erlang.list_to_ref(~c"#{normalized_ref}"), {:error, error}})
       else
         result ->
-          send(:erlang.list_to_pid(~c"#{normalized_pid}"), {:iex_reply, :erlang.list_to_ref(~c"#{normalized_ref}"), true})
+          send(:erlang.list_to_pid(~c"#{normalized_pid}"), {:iex_reply, :erlang.list_to_ref(~c"#{normalized_ref}"), {:ok, result}})
       end
       IEx.dont_display_result()
       """
 
-    send(iex_evaluator, {:eval, iex_server, code, 1, ""})
+    send_to_iex(state, code)
+    {:noreply, %{state | caller: from, ref: ref}}
+  end
+
+  def handle_call({:evaluate, _code, _opts}, _from, state) do
+    {:reply, {:error, :iex_busy}, state}
+  end
+
+  @impl true
+  def handle_info({:iex_reply, ref, response}, %{caller: caller, ref: ref} = state) do
+    GenServer.reply(caller, response)
+    {:noreply, %{state | caller: nil, ref: nil}}
+  end
+
+  defp send_to_iex(state, code) do
+    IO.inspect(state, label: "OK")
+    send(state.iex_evaluator, {:eval, state.iex_server, code, 1, ""})
   end
 end

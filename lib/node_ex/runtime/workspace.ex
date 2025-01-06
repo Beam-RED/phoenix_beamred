@@ -14,6 +14,7 @@ defmodule NodeEx.Runtime.Workspace do
   alias NodeEx.User
   alias NodeEx.Runtime.Workspace.Flow
   alias NodeEx.Runtime.Workspace.Node
+  alias NodeEx.Runtime.Workspace.Changes
 
   @type t :: %__MODULE__{
           flows: %{id() => Flow.t()},

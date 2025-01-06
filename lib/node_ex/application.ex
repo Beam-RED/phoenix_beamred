@@ -10,6 +10,7 @@ defmodule NodeEx.Application do
     children = [
       NodeEx.Storage,
       NodeEx.Runtime,
+      # TODO start evaluator from runtime
       NodeEx.Runtime.Evaluator,
       NodeExWeb.Telemetry,
       {DNSCluster, query: Application.get_env(:node_ex, :dns_cluster_query) || :ignore},
