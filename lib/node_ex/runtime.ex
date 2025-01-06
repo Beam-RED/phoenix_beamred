@@ -8,7 +8,7 @@ defmodule NodeEx.Runtime do
   Since the datastructure is not nested the easiest approach is to directly compare the two
   structure inside a converter elixir structure.
   """
-  defstruct [:workspace, :client_pids_with_id]
+  defstruct [:workspace, :client_pids_with_id, :flow_supervisors]
 
   use GenServer
 
@@ -23,7 +23,8 @@ defmodule NodeEx.Runtime do
 
   @type t :: %{
           workspace: Workspace.t(),
-          client_pids_with_id: %{pid() => Workspace.client_id()}
+          client_pids_with_id: %{pid() => Workspace.client_id()},
+          flow_supervisors: list(DynamicSupervisor.t())
         }
 
   @spec start_link(keyword()) :: GenServer.on_start()
@@ -84,7 +85,8 @@ defmodule NodeEx.Runtime do
   def init(_opts) do
     state = %__MODULE__{
       workspace: Workspace.new(),
-      client_pids_with_id: %{}
+      client_pids_with_id: %{},
+      flow_supervisors: []
     }
 
     {:ok, state}
@@ -170,17 +172,30 @@ defmodule NodeEx.Runtime do
     # TODO use different deployment stratgies
     IEx.Helpers.respawn()
 
-    Enum.each(state.workspace.flows, fn {flow_id, flow} ->
-      Enum.each(flow.nodes, fn
-        {node_id, {:not_loaded, module}} ->
-          IO.inspect(module, label: "Not loaded")
-
-        {node_id, node} ->
-          node.run_fn.(node)
-      end)
+    Enum.each(state.flow_supervisors, fn flow_supervisor ->
+      DynamicSupervisor.terminate_child(NodeEx.Runtime.FlowSupervisor, flow_supervisor)
     end)
 
-    state
+    flow_supervisors =
+      Enum.map(state.workspace.flows, fn {flow_id, flow} ->
+        {:ok, flow_supervisor} =
+          DynamicSupervisor.start_child(
+            NodeEx.Runtime.FlowSupervisor,
+            {DynamicSupervisor, name: NodeEx.Runtime.NodeSupervisor, strategy: :one_for_one}
+          )
+
+        Enum.each(flow.nodes, fn
+          {node_id, {:not_loaded, module}} ->
+            IO.inspect(module, label: "Not loaded")
+
+          {node_id, node} ->
+            DynamicSupervisor.start_child(flow_supervisor, {node.module, node})
+        end)
+
+        flow_supervisor
+      end)
+
+    %{state | flow_supervisors: flow_supervisors}
   end
 
   defp handle_action(state, _action), do: state

@@ -2,11 +2,11 @@ defmodule NodeEx.Runtime.Workspace.Node do
   # Data structure representing a single node in a workspace.
 
   defstruct [
+    :module,
     :id,
     :name,
     :type,
-    :outputs,
-    :run_fn
+    :outputs
   ]
 
   alias NodeEx.Utils
@@ -14,11 +14,11 @@ defmodule NodeEx.Runtime.Workspace.Node do
   @type id :: Utils.id()
 
   @type t :: %__MODULE__{
+          module: module(),
           id: id(),
           name: String.t(),
           type: String.t(),
-          outputs: list(id()),
-          run_fn: fun(list(term()))
+          outputs: list(id())
         }
 
   @doc """
@@ -30,11 +30,11 @@ defmodule NodeEx.Runtime.Workspace.Node do
 
     if Code.ensure_loaded?(node_module) do
       struct(node_module, %{
+        module: node_module,
         id: node["id"],
         name: node["name"],
         type: node["type"],
-        outputs: node["wires"],
-        run_fn: &node_module.run/1
+        outputs: node["wires"]
       })
     else
       {:not_loaded, node_module}
