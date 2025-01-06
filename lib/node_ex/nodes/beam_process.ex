@@ -1,39 +1,19 @@
 defmodule NodeEx.Nodes.BeamProcess do
-  use NodeEx.NodeType
+  defstruct [
+    :id,
+    :name,
+    :type,
+    :outputs,
+    :run_fn
+  ]
 
-  def js(node_name) do
-    """
-    RED.nodes.registerType("#{node_name}", {
-        category: "beam",
-        color: "#a6bbcf",
-        defaults: {
-            name: { value: "" },
-        },
-        inputs: 1,
-        outputs: 0,
-        icon: "file.svg",
-        label: function () {
-            return this.name || "#{node_name}";
-        },
-    });
-    """
-  end
-
-  def template(_node_name) do
-    """
-    <div class="form-row">
-        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
-        <input type="text" id="node-input-name" placeholder="Name" />
-    </div>
-    """
-  end
-
-  def help_text(_node_name) do
-    """
-    <p>
-        A simple node that converts the message payloads into all lower-case
-        characters
-    </p>
-    """
+  def run(node) do
+    quote do
+      defmodule Hello do
+        def run, do: "world"
+      end
+    end
+    |> Macro.to_string()
+    |> NodeEx.Runtime.Evaluator.evaluate_code()
   end
 end

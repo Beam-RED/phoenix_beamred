@@ -111,6 +111,7 @@ defmodule NodeEx.Runtime.Workspace do
         flow = Flow.new(f)
         Map.put(flows, flow_id, flow)
       end)
+      |> IO.inspect()
 
     flows =
       json_flows
@@ -118,7 +119,8 @@ defmodule NodeEx.Runtime.Workspace do
       |> Enum.reduce(flows, fn n, flows ->
         flow_id = n["z"]
         node_id = n["id"]
-        node = Node.new(n)
+        node_type = n["type"]
+        node = Node.new(node_type, n)
         put_in(flows, [Access.key(flow_id), Access.key(:nodes), Access.key(node_id)], node)
       end)
 

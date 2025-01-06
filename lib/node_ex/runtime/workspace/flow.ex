@@ -4,7 +4,7 @@ defmodule NodeEx.Runtime.Workspace.Flow do
   defstruct [:id, :name, :nodes]
 
   alias NodeEx.Utils
-  alias NodeEx.Workspace.Node
+  alias NodeEx.Runtime.Workspace.Node
 
   @type id :: Utils.id()
 
@@ -20,11 +20,10 @@ defmodule NodeEx.Runtime.Workspace.Flow do
   @spec new(map()) :: t()
   def new(flow) do
     %__MODULE__{
-      id: nil,
-      name: nil,
+      id: flow["id"],
+      name: flow["name"],
       nodes: %{}
     }
-    |> struct(flow)
   end
 
   @spec insert_node(t(), Node.id(), Node.t()) :: t()

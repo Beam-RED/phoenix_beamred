@@ -168,25 +168,18 @@ defmodule NodeEx.Runtime do
 
   defp handle_action(state, {:deploy, _deployment_type}) do
     # TODO use different deployment stratgies
-    IO.inspect(state, label: "YJKL:")
     IEx.Helpers.respawn()
 
-    expr1 =
-      """
-      defmodule Hello do
-      def world, do: "Hello World"
-      end
-      """
+    Enum.each(state.workspace.flows, fn {flow_id, flow} ->
+      Enum.each(flow.nodes, fn
+        {node_id, {:not_loaded, module}} ->
+          IO.inspect(module, label: "Not loaded")
 
-    expr2 =
-      """
-      defmodule Hello2 do
-      def world, do: "Hello world"
-      end
-      """
+        {node_id, node} ->
+          node.run_fn.(node)
+      end)
+    end)
 
-    Evaluator.evaluate_code(expr1) |> IO.inspect(label: "expr1")
-    Evaluator.evaluate_code(expr2) |> IO.inspect(label: "expr2")
     state
   end
 
