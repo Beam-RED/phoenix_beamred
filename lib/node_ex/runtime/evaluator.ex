@@ -19,22 +19,24 @@ defmodule NodeEx.Runtime.Evaluator do
 
   @impl true
   def init(_) do
-    {iex_evaluator, iex_server} =
-      IEx.Broker.evaluator()
-      |> IO.inspect(label: Runtime.Evaluator)
-
     state =
       %{
         caller: nil,
         ref: nil,
-        iex_evaluator: iex_evaluator,
-        iex_server: iex_server
+        iex_evaluator: nil,
+        iex_server: nil
       }
+
+    send(self(), :try_get_iex)
 
     {:ok, state}
   end
 
   @impl true
+  def handle_call(_msg, _from, %{iex_evaluator: evaluator} = state) when is_nil(evaluator) do
+    {:reply, {:error, :no_iex}, state}
+  end
+
   def handle_call({:evaluate, code, _opts}, from, %{caller: nil} = state) do
     ref = make_ref()
     normalized_pid = :erlang.pid_to_list(self())
@@ -68,8 +70,21 @@ defmodule NodeEx.Runtime.Evaluator do
     {:noreply, %{state | caller: nil, ref: nil}}
   end
 
+  def handle_info(:try_get_iex, state) do
+    state =
+      case IEx.Broker.evaluator() do
+        {nil, _} ->
+          Process.send_after(self(), :try_get_iex, 100)
+          state
+
+        {iex_evaluator, iex_server} ->
+          %{state | iex_evaluator: iex_evaluator, iex_server: iex_server}
+      end
+
+    {:noreply, state}
+  end
+
   defp send_to_iex(state, code) do
-    IO.inspect(state, label: "OK")
     send(state.iex_evaluator, {:eval, state.iex_server, code, 1, ""})
   end
 end
