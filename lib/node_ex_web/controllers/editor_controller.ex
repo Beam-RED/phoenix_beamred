@@ -50,7 +50,6 @@ defmodule NodeExWeb.EditorController do
       end
 
     IO.inspect(deployment_type, label: "Deployment Type")
-    IO.inspect(params)
 
     rev = params["rev"]
 

@@ -8,8 +8,6 @@ defmodule NodeEx.Nodes.BeamProcess do
     :outputs
   ]
 
-  alias NodeEx.Runtime.Evaluator
-
   # @spec child_spec(any()) :: Supervisor.child_spec()
   # def child_spec(init_arg) do
   # %{
@@ -26,14 +24,31 @@ defmodule NodeEx.Nodes.BeamProcess do
   end
 
   def init(node) do
-    quote do
-      defmodule Hello do
-        def run, do: "world"
-      end
-    end
-    |> Macro.to_string()
-    |> Evaluator.evaluate_code()
+    :ok = NodeExWeb.Channel.Server.subscribe(["notification/node/#{node.id}"])
 
-    {:ok, node}
+    pid = get_pid(node.name)
+    ref = Process.monitor(pid)
+
+    {:ok, %{pid: pid, ref: ref}}
+  end
+
+  def handle_info({:publish, topic, msg}, state) do
+    IO.inspect("#{msg} from #{topic}", label: "Got message")
+    {:noreply, state}
+  end
+
+  def handle_info({:DOWN, ref, :process, object, reason}, state) when ref == state.ref do
+    IO.inspect(reason, label: "Process died")
+    {:noreply, state}
+  end
+
+  def handle_info(msg, state) do
+    send(state.pid, msg)
+    {:noreply, state}
+  end
+
+  defp get_pid(name) do
+    Module.concat([name])
+    |> Process.whereis()
   end
 end
