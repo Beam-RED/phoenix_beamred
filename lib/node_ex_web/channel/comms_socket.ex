@@ -35,8 +35,7 @@ defmodule NodeExWeb.Channel.CommsSocket do
   end
 
   defp handle_msg(%{"topic" => topic, "data" => data}) do
-    node = String.split(topic, "/") |> List.last()
-    send(self(), {:set_status, node, "TEST"})
+    Server.publish(topic, data)
   end
 
   defp handle_msg(msg) do
