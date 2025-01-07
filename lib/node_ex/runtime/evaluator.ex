@@ -4,6 +4,7 @@ defmodule NodeEx.Runtime.Evaluator do
 
   # Client API
 
+  @spec start_link(keyword()) :: GenServer.on_start()
   def start_link(_opts) do
     GenServer.start_link(__MODULE__, %{}, name: __MODULE__)
   end
@@ -11,6 +12,7 @@ defmodule NodeEx.Runtime.Evaluator do
   @doc """
   Sends code to iex and waits for the evaluation response.
   """
+  @spec evaluate_code(String.t(), keyword()) :: {:ok, term()} | {:error, term()}
   def evaluate_code(code, opts \\ []) do
     GenServer.call(__MODULE__, {:evaluate, code, opts}, :infinity)
   end
