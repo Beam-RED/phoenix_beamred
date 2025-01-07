@@ -41,9 +41,15 @@ defmodule NodeExWeb.Router do
   end
 
   scope "/xterm", NodeExWeb do
-    pipe_through(:browser)
+    pipe_through :browser
 
     get "/", XtermController, :home
+  end
+
+  scope "/editor", NodeExWeb do
+    pipe_through :browser
+
+    live "/", EditorLive
   end
 
   # Enable LiveDashboard in development
