@@ -173,7 +173,7 @@ defmodule NodeEx.Runtime do
     IEx.Helpers.respawn()
 
     Enum.each(state.flow_supervisors, fn flow_supervisor ->
-      DynamicSupervisor.terminate_child(NodeEx.Runtime.FlowSupervisor, flow_supervisor)
+      :ok = DynamicSupervisor.terminate_child(NodeEx.Runtime.FlowsSupervisor, flow_supervisor)
     end)
 
     flow_supervisors =
@@ -195,6 +195,7 @@ defmodule NodeEx.Runtime do
 
         flow_supervisor
       end)
+      |> IO.inspect(label: "Supervisors")
 
     %{state | flow_supervisors: flow_supervisors}
   end
