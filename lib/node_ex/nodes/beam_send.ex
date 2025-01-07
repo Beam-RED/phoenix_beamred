@@ -1,4 +1,4 @@
-defmodule NodeEx.Nodes.BeamProcess do
+defmodule NodeEx.Nodes.BeamSend do
   use GenServer
 
   defstruct [
@@ -7,6 +7,8 @@ defmodule NodeEx.Nodes.BeamProcess do
     :outputs,
     :fields
   ]
+
+  alias NodeEx.Runtime
 
   # @spec child_spec(any()) :: Supervisor.child_spec()
   # def child_spec(init_arg) do
@@ -25,11 +27,20 @@ defmodule NodeEx.Nodes.BeamProcess do
 
   def init(node) do
     :ok = NodeExWeb.Channel.Server.subscribe(["notification/node/#{node.id}"])
+    IO.inspect(node)
 
-    pid = get_pid(node.fields["name"])
-    ref = Process.monitor(pid)
+    {:ok, %{id: node.id, outputs: hd(node.outputs), message: node.fields["msg"]}}
+  end
 
-    {:ok, %{pid: pid, ref: ref}}
+  def handle_info({:publish, "notification/node/" <> node_id, "send"}, state) do
+    IO.inspect(state, label: "Send")
+
+    Enum.each(state.outputs, fn output ->
+      {:ok, pid} = Runtime.get_node_pid(output)
+      send(pid, state.message)
+    end)
+
+    {:noreply, state}
   end
 
   def handle_info({:publish, topic, msg}, state) do
