@@ -72,6 +72,26 @@ defmodule NodeExWeb.NodeController do
               "enabled": true,
               "local": false,
               "user": false
+          },
+          {
+              "id": "node-red/beam-module",
+              "name": "beam-module",
+              "types": [
+                  "beam-module"
+              ],
+              "enabled": true,
+              "local": false,
+              "user": false
+          },
+          {
+              "id": "node-red/comment",
+              "name": "comment",
+              "types": [
+                  "comment"
+              ],
+              "enabled": true,
+              "local": false,
+              "user": false
           }
       ]
       """
