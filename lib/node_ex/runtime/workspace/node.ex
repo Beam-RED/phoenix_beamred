@@ -30,7 +30,6 @@ defmodule NodeEx.Runtime.Workspace.Node do
 
     if Code.ensure_loaded?(node_module) do
       struct(node_module, %{
-        module: node_module,
         id: node["id"],
         name: node["name"],
         type: node["type"],

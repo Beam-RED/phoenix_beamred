@@ -2,7 +2,6 @@ defmodule NodeEx.Nodes.BeamProcess do
   use GenServer
 
   defstruct [
-    :module,
     :id,
     :name,
     :type,

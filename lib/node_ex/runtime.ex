@@ -189,7 +189,7 @@ defmodule NodeEx.Runtime do
             IO.inspect(module, label: "Not loaded")
 
           {node_id, node} ->
-            DynamicSupervisor.start_child(flow_supervisor, {node.module, node})
+            DynamicSupervisor.start_child(flow_supervisor, {node.__struct__, node})
             |> IO.inspect(label: "Start node")
         end)
 
