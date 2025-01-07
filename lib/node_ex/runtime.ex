@@ -24,7 +24,7 @@ defmodule NodeEx.Runtime do
   @type t :: %{
           workspace: Workspace.t(),
           client_pids_with_id: %{pid() => Workspace.client_id()},
-          flow_supervisors: list(DynamicSupervisor.t())
+          flow_supervisors: list(pid())
         }
 
   @spec start_link(keyword()) :: GenServer.on_start()
@@ -180,8 +180,8 @@ defmodule NodeEx.Runtime do
       Enum.map(state.workspace.flows, fn {flow_id, flow} ->
         {:ok, flow_supervisor} =
           DynamicSupervisor.start_child(
-            NodeEx.Runtime.FlowSupervisor,
-            {DynamicSupervisor, name: NodeEx.Runtime.NodeSupervisor, strategy: :one_for_one}
+            NodeEx.Runtime.FlowsSupervisor,
+            {DynamicSupervisor, name: NodeEx.Runtime.FlowSupervisor, strategy: :one_for_one}
           )
 
         Enum.each(flow.nodes, fn
@@ -190,6 +190,7 @@ defmodule NodeEx.Runtime do
 
           {node_id, node} ->
             DynamicSupervisor.start_child(flow_supervisor, {node.module, node})
+            |> IO.inspect(label: "Start node")
         end)
 
         flow_supervisor

@@ -11,6 +11,17 @@ defmodule NodeEx.Nodes.BeamProcess do
 
   alias NodeEx.Runtime.Evaluator
 
+  # @spec child_spec(any()) :: Supervisor.child_spec()
+  # def child_spec(init_arg) do
+  # %{
+  # id: __MODULE__,
+  # start: {__MODULE__, :start_link, init_arg},
+  # restart: :permanent,
+  # shutdown: 5000,
+  # type: :worker
+  # }
+  # end
+
   def start_link(node) do
     GenServer.start_link(__MODULE__, node)
   end
