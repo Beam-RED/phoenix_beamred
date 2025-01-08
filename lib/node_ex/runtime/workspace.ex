@@ -40,6 +40,7 @@ defmodule NodeEx.Runtime.Workspace do
   @type action ::
           {:start_evaluation, Flow.t()}
           | {:stop_evaluation, Flow.t()}
+          | {:deploy, deployment_type()}
 
   @doc """
   Returns a blank workspace.
