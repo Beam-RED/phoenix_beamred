@@ -4,7 +4,7 @@ defmodule NodeEx.Runtime.Workspace.Node do
   defstruct [
     :id,
     :flow_id,
-    :type,
+    :module,
     :outputs,
     :status,
     :fields
@@ -23,7 +23,7 @@ defmodule NodeEx.Runtime.Workspace.Node do
   @type t :: %__MODULE__{
           id: id(),
           flow_id: Flow.id(),
-          type: String.t(),
+          module: module(),
           outputs: list(id()),
           status: status() | nil,
           fields: map()
@@ -32,19 +32,19 @@ defmodule NodeEx.Runtime.Workspace.Node do
   @doc """
   Returns a empty node.
   """
-  @spec new(String.t(), map()) :: struct() | {:not_loaded, atom()}
-  def new(type, node) do
-    node_module = Module.concat([NodeEx.Nodes, get_module_name(type)])
+  @spec new(map()) :: t() | {:not_loaded, atom()}
+  def new(node) do
+    node_module = get_module(node["type"])
 
     if Code.ensure_loaded?(node_module) do
-      struct(node_module, %{
+      %__MODULE__{
         id: node["id"],
         flow_id: node["z"],
-        type: node["type"],
+        module: node_module,
         outputs: node["wires"],
         status: nil,
         fields: node
-      })
+      }
     else
       {:not_loaded, node_module}
     end
@@ -58,10 +58,13 @@ defmodule NodeEx.Runtime.Workspace.Node do
     %{node | status: status}
   end
 
-  defp get_module_name(type) do
-    type
-    |> String.replace("-", "_")
-    |> Macro.camelize()
-    |> String.to_atom()
+  defp get_module(type) do
+    name =
+      type
+      |> String.replace("-", "_")
+      |> Macro.camelize()
+      |> String.to_atom()
+
+    Module.concat([NodeEx.Nodes, name])
   end
 end

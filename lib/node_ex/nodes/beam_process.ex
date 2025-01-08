@@ -1,24 +1,9 @@
 defmodule NodeEx.Nodes.BeamProcess do
-  use GenServer
-
-  defstruct [
-    :id,
-    :flow_id,
-    :type,
-    :outputs,
-    :status,
-    :fields
-  ]
+  use NodeEx.NodeType
 
   alias NodeEx.Runtime
 
-  def start_link(node) do
-    GenServer.start_link(__MODULE__, node, name: via_tuple(node.id))
-  end
-
-  def init(node) do
-    :ok = NodeExWeb.Channel.Server.subscribe(["notification/node/#{node.id}"])
-
+  def setup(node) do
     pid = get_pid(node.fields["name"])
     if is_nil(pid), do: Runtime.set_node_status(node.flow_id, node.id, {"Error", :red, :dot})
 
@@ -46,6 +31,4 @@ defmodule NodeEx.Nodes.BeamProcess do
     Module.concat([name])
     |> Process.whereis()
   end
-
-  defp via_tuple(id), do: {:via, Registry, {NodeEx.Runtime.Registry, id}}
 end

@@ -1,36 +1,10 @@
 defmodule NodeEx.Nodes.BeamSend do
-  use GenServer
-
-  defstruct [
-    :id,
-    :flow_id,
-    :type,
-    :outputs,
-    :status,
-    :fields
-  ]
+  use NodeEx.NodeType
 
   alias NodeEx.Runtime
+  alias NodeEx.Runtime.Workspace
 
-  # @spec child_spec(any()) :: Supervisor.child_spec()
-  # def child_spec(node) do
-  #  %{
-  #    id: node.id,
-  #    start: {__MODULE__, :start_link, node},
-  #    restart: :permanent,
-  #    shutdown: 5000,
-  #    type: :worker
-  #  }
-  # end
-
-  def start_link(node) do
-    GenServer.start_link(__MODULE__, node, name: via_tuple(node.id))
-  end
-
-  def init(node) do
-    :ok = NodeExWeb.Channel.Server.subscribe(["notification/node/#{node.id}"])
-    IO.inspect(node)
-
+  def setup(node) do
     case Code.string_to_quoted(node.fields["msg"]) do
       {:ok, _} ->
         Runtime.set_node_status(node.flow_id, node.id, {"Success", :grey, :ring})
@@ -68,11 +42,4 @@ defmodule NodeEx.Nodes.BeamSend do
     send(state.pid, msg)
     {:noreply, state}
   end
-
-  defp get_pid(name) do
-    Module.concat([name])
-    |> Process.whereis()
-  end
-
-  defp via_tuple(id), do: {:via, Registry, {NodeEx.Runtime.Registry, id}}
 end

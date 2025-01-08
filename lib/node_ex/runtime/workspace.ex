@@ -118,10 +118,9 @@ defmodule NodeEx.Runtime.Workspace do
       json_flows
       |> Enum.reject(fn f -> f["type"] in ["tab", "group", "subnode"] end)
       |> Enum.reduce(flows, fn n, flows ->
-        flow_id = n["z"]
         node_id = n["id"]
-        node_type = n["type"]
-        node = Node.new(node_type, n)
+        flow_id = n["z"]
+        node = Node.new(n)
         put_in(flows, [Access.key(flow_id), Access.key(:nodes), Access.key(node_id)], node)
       end)
 

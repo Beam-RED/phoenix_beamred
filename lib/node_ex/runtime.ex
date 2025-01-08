@@ -218,7 +218,7 @@ defmodule NodeEx.Runtime do
 
         {node_id, node} ->
           {:ok, node_pid} =
-            DynamicSupervisor.start_child(flow_sup_pid, {node.__struct__, node})
+            DynamicSupervisor.start_child(flow_sup_pid, {node.module, node})
             |> IO.inspect(label: "Start node")
       end)
     end)
