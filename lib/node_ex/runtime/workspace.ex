@@ -36,6 +36,7 @@ defmodule NodeEx.Runtime.Workspace do
           | {:delete_flow, client_id(), Flow.id()}
           | {:delete_node, Node.id()}
           | {:deploy_flows, client_id(), map(), deployment_type()}
+          | {:set_node_status, client_id(), Flow.id(), Node.id(), Node.status()}
 
   @type action ::
           {:start_evaluation, Flow.t()}
@@ -134,6 +135,14 @@ defmodule NodeEx.Runtime.Workspace do
     |> wrap_ok()
   end
 
+  def apply_operation(workspace, {:set_node_status, _client_id, flow_id, node_id, status}) do
+    workspace
+    |> with_actions()
+    |> set_node_status(flow_id, node_id, status)
+    |> set_dirty()
+    |> wrap_ok()
+  end
+
   defp add_action({workspace, actions}, action) do
     {workspace, actions ++ [action]}
   end
@@ -184,6 +193,20 @@ defmodule NodeEx.Runtime.Workspace do
   end
 
   defp update_flows({workspace, _} = workspace_actions, flows) do
+    workspace_actions
+    |> set!(flows: flows)
+  end
+
+  defp set_node_status({workspace, _} = workspace_actions, flow_id, node_id, status) do
+    flows =
+      update_in(
+        workspace.flows,
+        [Access.key(flow_id), Access.key(:nodes), Access.key(node_id)],
+        fn node ->
+          Node.set_status(node, status)
+        end
+      )
+
     workspace_actions
     |> set!(flows: flows)
   end

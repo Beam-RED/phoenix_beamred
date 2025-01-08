@@ -3,30 +3,25 @@ defmodule NodeEx.Nodes.BeamProcess do
 
   defstruct [
     :id,
+    :flow_id,
     :type,
     :outputs,
+    :status,
     :fields
   ]
 
-  # @spec child_spec(any()) :: Supervisor.child_spec()
-  # def child_spec(init_arg) do
-  # %{
-  # id: __MODULE__,
-  # start: {__MODULE__, :start_link, init_arg},
-  # restart: :permanent,
-  # shutdown: 5000,
-  # type: :worker
-  # }
-  # end
+  alias NodeEx.Runtime
 
   def start_link(node) do
-    GenServer.start_link(__MODULE__, node)
+    GenServer.start_link(__MODULE__, node, name: via_tuple(node.id))
   end
 
   def init(node) do
     :ok = NodeExWeb.Channel.Server.subscribe(["notification/node/#{node.id}"])
 
     pid = get_pid(node.fields["name"])
+    if is_nil(pid), do: Runtime.set_node_status(node.flow_id, node.id, {"Error", :red, :dot})
+
     ref = Process.monitor(pid)
 
     {:ok, %{pid: pid, ref: ref}}
@@ -51,4 +46,6 @@ defmodule NodeEx.Nodes.BeamProcess do
     Module.concat([name])
     |> Process.whereis()
   end
+
+  defp via_tuple(id), do: {:via, Registry, {NodeEx.Runtime.Registry, id}}
 end

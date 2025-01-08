@@ -8,11 +8,10 @@ defmodule NodeEx.Runtime do
   Since the datastructure is not nested the easiest approach is to directly compare the two
   structure inside a converter elixir structure.
   """
-  defstruct [:workspace, :client_pids_with_id, :flow_sup_pids, :node_pids]
+  defstruct [:workspace, :client_pids_with_id]
 
   use GenServer
 
-  alias NodeEx.Runtime.Evaluator
   alias NodeEx.Runtime.Workspace
   alias NodeEx.User
   alias NodeEx.Utils
@@ -23,9 +22,7 @@ defmodule NodeEx.Runtime do
 
   @type t :: %{
           workspace: Workspace.t(),
-          client_pids_with_id: %{pid() => Workspace.client_id()},
-          flow_sup_pids: list(pid()),
-          node_pids: %{Workspace.Node.id() => pid()}
+          client_pids_with_id: %{pid() => Workspace.client_id()}
         }
 
   @spec start_link(keyword()) :: GenServer.on_start()
@@ -87,14 +84,20 @@ defmodule NodeEx.Runtime do
     GenServer.cast(__MODULE__, {:deploy_flows, self(), json_flows, deployment_type})
   end
 
+  @doc """
+  """
+  @spec set_node_status(Workspace.Flow.id(), Workspace.Node.id(), Workspace.Node.status()) :: :ok
+  def set_node_status(flow_id, node_id, status) do
+    GenServer.cast(__MODULE__, {:set_node_status, self(), flow_id, node_id, status})
+  end
+
   ## Callback
 
   @impl true
   def init(_opts) do
     state = %__MODULE__{
       workspace: Workspace.new(),
-      client_pids_with_id: %{},
-      flow_sup_pids: []
+      client_pids_with_id: %{}
     }
 
     {:ok, state}
@@ -122,11 +125,11 @@ defmodule NodeEx.Runtime do
   end
 
   def handle_call({:get_node_pid, id}, _from, state) do
-    case Map.get(state.node_pids, id, nil) do
-      nil ->
+    case Registry.lookup(NodeEx.Runtime.Registry, id) do
+      [] ->
         {:reply, :error, state}
 
-      pid ->
+      [{pid, _}] ->
         {:reply, {:ok, pid}, state}
     end
   end
@@ -151,6 +154,12 @@ defmodule NodeEx.Runtime do
   def handle_cast({:deploy_flows, client_pid, json_flows, deployment_type}, state) do
     client_id = client_id(state, client_pid)
     operation = {:deploy_flows, client_id, json_flows, deployment_type}
+    {:noreply, handle_operation(state, operation)}
+  end
+
+  def handle_cast({:set_node_status, client_pid, flow_id, node_id, status}, state) do
+    client_id = client_id(state, client_pid)
+    operation = {:set_node_status, client_id, flow_id, node_id, status}
     {:noreply, handle_operation(state, operation)}
   end
 
@@ -190,45 +199,31 @@ defmodule NodeEx.Runtime do
     # TODO use different deployment stratgies
     IEx.Helpers.respawn()
 
-    Enum.each(state.flow_sup_pids, fn flow_sup_pid ->
+    DynamicSupervisor.which_children(NodeEx.Runtime.FlowsSupervisor)
+    |> Enum.each(fn {:undefined, flow_sup_pid, :supervisor, _} ->
       :ok = DynamicSupervisor.terminate_child(NodeEx.Runtime.FlowsSupervisor, flow_sup_pid)
     end)
 
-    %{flow_sup_pids: flow_sup_pids, node_pids: node_pids} =
-      Enum.map(state.workspace.flows, fn {_flow_id, flow} ->
-        {:ok, flow_sup_pid} =
-          DynamicSupervisor.start_child(
-            NodeEx.Runtime.FlowsSupervisor,
-            {DynamicSupervisor, name: NodeEx.Runtime.FlowSupervisor, strategy: :one_for_one}
-          )
+    Enum.each(state.workspace.flows, fn {flow_id, flow} ->
+      {:ok, flow_sup_pid} =
+        DynamicSupervisor.start_child(
+          NodeEx.Runtime.FlowsSupervisor,
+          {DynamicSupervisor,
+           name: {:via, Registry, {NodeEx.Runtime.Registry, flow_id}}, strategy: :one_for_one}
+        )
 
-        node_pids =
-          Enum.map(flow.nodes, fn
-            {node_id, {:not_loaded, module}} ->
-              IO.inspect(module, label: "Not loaded")
-              {node_id, nil}
+      Enum.each(flow.nodes, fn
+        {node_id, {:not_loaded, module}} ->
+          IO.inspect(module, label: "Not loaded")
 
-            {node_id, node} ->
-              {:ok, node_pid} =
-                DynamicSupervisor.start_child(flow_sup_pid, {node.__struct__, node})
-                |> IO.inspect(label: "Start node")
-
-              {node_id, node_pid}
-          end)
-          |> Map.new()
-
-        {flow_sup_pid, node_pids}
+        {node_id, node} ->
+          {:ok, node_pid} =
+            DynamicSupervisor.start_child(flow_sup_pid, {node.__struct__, node})
+            |> IO.inspect(label: "Start node")
       end)
-      |> Enum.reduce(%{flow_sup_pids: [], node_pids: %{}}, fn {flow_sup_pid, flow_node_pids},
-                                                              acc ->
-        %{
-          acc
-          | flow_sup_pids: [flow_sup_pid | acc.flow_sup_pids],
-            node_pids: Map.merge(acc.node_pids, flow_node_pids)
-        }
-      end)
+    end)
 
-    %{state | flow_sup_pids: flow_sup_pids, node_pids: node_pids}
+    state
   end
 
   defp handle_action(state, _action), do: state

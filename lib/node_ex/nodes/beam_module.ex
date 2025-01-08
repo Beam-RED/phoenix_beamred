@@ -3,24 +3,15 @@ defmodule NodeEx.Nodes.BeamModule do
 
   defstruct [
     :id,
+    :flow_id,
     :type,
     :outputs,
+    :status,
     :fields
   ]
 
-  # @spec child_spec(any()) :: Supervisor.child_spec()
-  # def child_spec(init_arg) do
-  # %{
-  # id: __MODULE__,
-  # start: {__MODULE__, :start_link, init_arg},
-  # restart: :permanent,
-  # shutdown: 5000,
-  # type: :worker
-  # }
-  # end
-
   def start_link(node) do
-    GenServer.start_link(__MODULE__, node)
+    GenServer.start_link(__MODULE__, node, name: via_tuple(node.id))
   end
 
   def init(node) do
@@ -39,4 +30,6 @@ defmodule NodeEx.Nodes.BeamModule do
     IO.inspect("#{msg} from #{topic}", label: "Got message")
     {:noreply, state}
   end
+
+  defp via_tuple(id), do: {:via, Registry, {NodeEx.Runtime.Registry, id}}
 end

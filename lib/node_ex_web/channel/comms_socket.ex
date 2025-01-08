@@ -23,23 +23,28 @@ defmodule NodeExWeb.Channel.CommsSocket do
   @impl true
   def handle_in({msg, _}, state) do
     case Jason.decode(msg) do
-      {:ok, json} -> handle_msg(json)
-      error -> IO.inspect(error)
-    end
+      {:ok, json} ->
+        handle_msg(state, json)
 
+      error ->
+        IO.inspect(error)
+        {:ok, state}
+    end
+  end
+
+  defp handle_msg(state, %{"subscribe" => topic}) do
+    :ok = Server.subscribe([topic])
     {:ok, state}
   end
 
-  defp handle_msg(%{"subscribe" => topic}) do
-    :ok = Server.subscribe([topic])
-  end
-
-  defp handle_msg(%{"topic" => topic, "data" => data}) do
+  defp handle_msg(state, %{"topic" => topic, "data" => data}) do
     Server.publish(topic, data)
+    {:ok, state}
   end
 
-  defp handle_msg(msg) do
+  defp handle_msg(state, msg) do
     IO.inspect(msg, label: "Last handle msg")
+    {:ok, state}
   end
 
   @impl true
@@ -58,14 +63,6 @@ defmodule NodeExWeb.Channel.CommsSocket do
     {:push, {:text, data}, state}
   end
 
-  def handle_info({:set_status, node, text}, state) do
-    data =
-      [%{topic: "status/#{node}", data: %{text: text, fill: "red", shape: "ring"}}]
-      |> Jason.encode!()
-
-    {:push, {:text, data}, state}
-  end
-
   def handle_info(msg, state) do
     IO.inspect(msg, label: "handle_info")
     {:ok, state}
@@ -81,6 +78,16 @@ defmodule NodeExWeb.Channel.CommsSocket do
       :error ->
         state
     end
+  end
+
+  # TODO push operation
+  defp after_operation(
+         state,
+         _prev_state,
+         {:set_node_status, _client_id, _flow_id, node_id, {text, fill, shape}}
+       ) do
+    push_event("status/#{node_id}", %{text: text, fill: fill, shape: shape})
+    state
   end
 
   defp after_operation(state, _prev_state, _operation), do: state

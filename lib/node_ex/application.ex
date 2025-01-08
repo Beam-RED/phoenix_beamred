@@ -13,6 +13,7 @@ defmodule NodeEx.Application do
       # TODO start evaluator from runtime
       NodeEx.Runtime.Evaluator,
       {DynamicSupervisor, name: NodeEx.Runtime.FlowsSupervisor, strategy: :one_for_one},
+      {Registry, keys: :unique, name: NodeEx.Runtime.Registry},
       NodeExWeb.Telemetry,
       {DNSCluster, query: Application.get_env(:node_ex, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: NodeEx.PubSub},
