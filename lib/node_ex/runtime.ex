@@ -8,7 +8,7 @@ defmodule NodeEx.Runtime do
   Since the datastructure is not nested the easiest approach is to directly compare the two
   structure inside a converter elixir structure.
   """
-  defstruct [:workspace, :client_pids_with_id]
+  defstruct [:evaluator, :workspace, :client_pids_with_id]
 
   use GenServer
 
@@ -21,6 +21,7 @@ defmodule NodeEx.Runtime do
   @anonymous_client_id "__anonymous__"
 
   @type t :: %{
+          evaluator: pid(),
           workspace: Workspace.t(),
           client_pids_with_id: %{pid() => Workspace.client_id()}
         }

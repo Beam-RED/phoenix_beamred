@@ -1,4 +1,4 @@
-defmodule NodeEx.Storage do
+defmodule NodeEx.Runtime.Storage do
   # TODO use ets
   use GenServer
 

@@ -6,9 +6,16 @@ defmodule NodeEx.Runtime.Supervisor do
   end
 
   @impl true
-  def init(opts) do
-    children = []
+  def init(_opts) do
+    children = [
+      NodeEx.Runtime,
+      NodeEx.Runtime.Storage,
+      NodeEx.Runtime.Evaluator,
+      {DynamicSupervisor, name: NodeEx.Runtime.FlowsSupervisor, strategy: :one_for_one},
+      {Registry, keys: :unique, name: NodeEx.Runtime.Registry},
+      NodeExWeb.Channel.Server
+    ]
 
-    Supervisor.init(children, strategy: :simple_one_for_one)
+    Supervisor.init(children, strategy: :one_for_one)
   end
 end

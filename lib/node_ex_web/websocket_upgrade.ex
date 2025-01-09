@@ -1,4 +1,4 @@
-defmodule NodeExWeb.Channel.WebsocketUpgrade do
+defmodule NodeExWeb.WebsocketUpgrade do
   @moduledoc """
   Plug to upgrade request to websocket connection and starting `WebSock` handler.
   """

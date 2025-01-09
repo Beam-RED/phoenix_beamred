@@ -53,8 +53,8 @@ defmodule NodeExWeb.EditorController do
 
     rev = params["rev"]
 
-    if !rev || rev == NodeEx.Storage.get_rev() do
-      new_rev = NodeEx.Storage.save_flows(flows)
+    if !rev || rev == NodeEx.Runtime.Storage.get_rev() do
+      new_rev = NodeEx.Runtime.Storage.save_flows(flows)
 
       NodeEx.Runtime.deploy_flows(flows, deployment_type)
 
@@ -77,7 +77,7 @@ defmodule NodeExWeb.EditorController do
   end
 
   def flows(conn, _params) do
-    {rev, flows} = NodeEx.Storage.get_flows()
+    {rev, flows} = NodeEx.Runtime.Storage.get_flows()
 
     json(conn, %{flows: flows, rev: rev})
   end
