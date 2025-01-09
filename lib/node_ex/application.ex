@@ -7,6 +7,7 @@ defmodule NodeEx.Application do
   def start(_type, _args) do
     children = [
       NodeEx.Runtime.Supervisor,
+      NodeEx.MQTT.Server,
       NodeExWeb.Telemetry,
       {Phoenix.PubSub, name: NodeEx.PubSub},
       NodeExWeb.Endpoint

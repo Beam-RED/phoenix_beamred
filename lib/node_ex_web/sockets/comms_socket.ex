@@ -1,10 +1,10 @@
-defmodule NodeExWeb.Channel.CommsSocket do
+defmodule NodeExWeb.CommsSocket do
   use NodeExWeb, :verified_routes
   @behaviour WebSock
 
   @hb_interval 15000
 
-  alias NodeExWeb.Channel.Server
+  alias NodeEx.MQTT.Server
   alias NodeEx.Runtime
   alias NodeEx.User
 

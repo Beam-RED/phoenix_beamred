@@ -1,5 +1,5 @@
-defmodule NodeExWeb.Channel.Server do
-  alias NodeExWeb.Channel.Subscriptions
+defmodule NodeEx.MQTT.Server do
+  alias NodeEx.MQTT.Subscriptions
   use GenServer
   require Logger
 

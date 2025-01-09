@@ -25,7 +25,7 @@ defmodule NodeExWeb.Router do
     pipe_through :nodered
 
     get "/", EditorController, :home
-    get "/comms", WebsocketUpgrade, NodeExWeb.Channel.CommsSocket
+    get "/comms", WebsocketUpgrade, NodeExWeb.CommsSocket
     get "/locales/:file", LocalesController, :locales
     get "/theme", SettingsController, :theme
     get "/settings", SettingsController, :settings

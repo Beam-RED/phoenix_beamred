@@ -26,7 +26,7 @@ defmodule NodeEx.NodeType do
       end
 
       def init(node) do
-        :ok = NodeExWeb.Channel.Server.subscribe(["notification/node/#{node.id}"])
+        :ok = NodeEx.MQTT.Server.subscribe(["notification/node/#{node.id}"])
         {:ok, state} = setup(node)
         {:ok, state}
       end

@@ -12,8 +12,7 @@ defmodule NodeEx.Runtime.Supervisor do
       NodeEx.Runtime.Storage,
       NodeEx.Runtime.Evaluator,
       {DynamicSupervisor, name: NodeEx.Runtime.FlowsSupervisor, strategy: :one_for_one},
-      {Registry, keys: :unique, name: NodeEx.Runtime.Registry},
-      NodeExWeb.Channel.Server
+      {Registry, keys: :unique, name: NodeEx.Runtime.Registry}
     ]
 
     Supervisor.init(children, strategy: :one_for_one)

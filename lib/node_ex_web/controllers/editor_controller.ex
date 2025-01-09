@@ -1,7 +1,7 @@
 defmodule NodeExWeb.EditorController do
   use NodeExWeb, :controller
 
-  alias NodeExWeb.Channel.Server
+  alias NodeEx.MQTT.Server
 
   def home(conn, _params) do
     # The home page is often custom made,

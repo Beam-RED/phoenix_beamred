@@ -1,5 +1,5 @@
-defmodule NodeExWeb.Channel.Subscriptions do
-  alias NodeExWeb.Channel.Topics
+defmodule NodeEx.MQTT.Subscriptions do
+  alias NodeEx.MQTT.Topics
 
   @moduledoc """
   Represents collection of subscribed topics for multiple processes.
