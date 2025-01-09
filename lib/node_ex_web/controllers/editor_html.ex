@@ -1,4 +1,4 @@
-defmodule NodeExWeb.EditorHTML do
+defmodule NodeExWeb.NodeRedHTML do
   @moduledoc """
   """
   use NodeExWeb, :html

@@ -24,20 +24,20 @@ defmodule NodeExWeb.Router do
   scope "/", NodeExWeb do
     pipe_through :nodered
 
-    get "/", EditorController, :home
+    get "/", NodeRedController, :home
     get "/comms", WebsocketUpgrade, NodeExWeb.CommsSocket
-    get "/locales/:file", LocalesController, :locales
-    get "/theme", SettingsController, :theme
-    get "/settings", SettingsController, :settings
-    get "/settings/user", SettingsController, :user
-    post "/settings/user", SettingsController, :new_user
-    get "/plugins", EditorController, :plugins
-    get "/plugins/messages", EditorController, :messages
-    get "/nodes", NodeController, :nodes
-    get "/nodes/messages", NodeController, :messages
-    get "/icons", EditorController, :icons
-    get "/flows", EditorController, :flows
-    post "/flows", EditorController, :new_flow
+    get "/locales/:file", NodeRedController, :locales
+    get "/theme", NodeRedController, :theme
+    get "/settings", NodeRedController, :settings
+    get "/settings/user", NodeRedController, :user
+    post "/settings/user", NodeRedController, :new_user
+    get "/plugins", NodeRedController, :plugins
+    get "/plugins/messages", NodeRedController, :messages
+    get "/nodes", NodeRedController, :nodes
+    get "/nodes/messages", NodeRedController, :messages
+    get "/icons", NodeRedController, :icons
+    get "/flows", NodeRedController, :flows
+    post "/flows", NodeRedController, :new_flow
   end
 
   scope "/xterm", NodeExWeb do

@@ -1,4 +1,4 @@
-defmodule NodeExWeb.EditorController do
+defmodule NodeExWeb.NodeRedController do
   use NodeExWeb, :controller
 
   alias NodeEx.MQTT.Server
@@ -80,5 +80,315 @@ defmodule NodeExWeb.EditorController do
     {rev, flows} = NodeEx.Runtime.Storage.get_flows()
 
     json(conn, %{flows: flows, rev: rev})
+  end
+
+  def nodes(conn, _params) do
+    data =
+      """
+      [
+          {
+              "id": "node-red/junction",
+              "name": "junction",
+              "types": [
+                  "junction"
+              ],
+              "enabled": true,
+              "local": false,
+              "user": false,
+              "module": "node-red",
+              "version": "4.0.8"
+          },
+          {
+              "id": "node-red/inject",
+              "name": "inject",
+              "types": [
+                  "inject"
+              ],
+              "enabled": true,
+              "local": false,
+              "user": false,
+              "module": "node-red",
+              "version": "4.0.8"
+          },
+          {
+              "id": "node-red/complete",
+              "name": "complete",
+              "types": [
+                  "complete"
+              ],
+              "enabled": true,
+              "local": false,
+              "user": false,
+              "module": "node-red",
+              "version": "4.0.8"
+          },
+          {
+              "id": "node-red/function",
+              "name": "function",
+              "types": [
+                  "function"
+              ],
+              "enabled": true,
+              "local": false,
+              "user": false,
+              "module": "node-red",
+              "version": "4.0.8"
+          },
+          {
+              "id": "node-red/beam-process",
+              "name": "beam-process",
+              "types": [
+                  "beam-process"
+              ],
+              "enabled": true,
+              "local": false,
+              "user": false
+          },
+          {
+              "id": "node-red/beam-send",
+              "name": "beam-send",
+              "types": [
+                  "beam-send"
+              ],
+              "enabled": true,
+              "local": false,
+              "user": false
+          },
+          {
+              "id": "node-red/beam-module",
+              "name": "beam-module",
+              "types": [
+                  "beam-module"
+              ],
+              "enabled": true,
+              "local": false,
+              "user": false
+          },
+          {
+              "id": "node-red/comment",
+              "name": "comment",
+              "types": [
+                  "comment"
+              ],
+              "enabled": true,
+              "local": false,
+              "user": false
+          }
+      ]
+      """
+      |> Jason.decode!()
+
+    case conn.private[:phoenix_format] do
+      "json" ->
+        json(conn, data)
+
+      "html" ->
+        file_path =
+          Path.join([:code.priv_dir(:node_ex), "static", "assets", "nodes", "nodes.html"])
+
+        conn
+        |> put_resp_content_type("text/html")
+        |> send_file(200, file_path)
+
+      _ ->
+        # TODO remove this
+        IO.inspect(conn, label: "nodes wrong format type")
+    end
+  end
+
+  def messages(conn, _params) do
+    data =
+      """
+      {}
+      """
+      |> Jason.decode!()
+
+    json(conn, data)
+  end
+
+  def locales(conn, %{"file" => file, "lng" => lng}) do
+    file_path = get_file_path(file, lng)
+
+    if File.exists?(file_path) do
+      conn
+      |> put_resp_content_type("application/json")
+      |> send_file(200, file_path)
+    else
+      json(conn, "{}")
+    end
+  end
+
+  def theme(conn, _params) do
+    data =
+      """
+      {
+          "page": {
+              "title": "Node-RED",
+              "favicon": "favicon.ico",
+              "tabicon": {
+                  "icon": "red/images/node-red-icon-black.svg",
+                  "colour": "#8f0000"
+              }
+          },
+          "header": {
+              "title": "Node-RED",
+              "image": "red/images/node-red.svg"
+          },
+          "asset": {
+              "red": "red/red.min.js",
+              "main": "red/main.min.js",
+              "vendorMonaco": "vendor/monaco/monaco-bootstrap.js"
+          },
+          "themes": []
+      }
+      """
+      |> Jason.decode!()
+
+    json(conn, data)
+  end
+
+  def settings(conn, _params) do
+    data =
+      """
+      {
+          "httpNodeRoot": "/",
+          "version": "4.0.8",
+          "context": {
+              "default": "memory",
+              "stores": [
+                  "memory"
+              ]
+          },
+          "codeEditor": {
+              "lib": "monaco",
+              "options": {}
+          },
+          "markdownEditor": {
+              "mermaid": {
+                  "enabled": true
+              }
+          },
+          "libraries": [
+              {
+                  "id": "local",
+                  "label": "editor:library.types.local",
+                  "user": false,
+                  "icon": "font-awesome/fa-hdd-o"
+              },
+              {
+                  "id": "examples",
+                  "label": "editor:library.types.examples",
+                  "user": false,
+                  "icon": "font-awesome/fa-life-ring",
+                  "types": [
+                      "flows"
+                  ],
+                  "readOnly": true
+              }
+          ],
+          "flowFilePretty": true,
+          "externalModules": {
+            "palette": {
+              "allowInstall": true
+            }
+          },
+          "flowEncryptionType": "system",
+          "diagnostics": {
+              "enabled": true,
+              "ui": true
+          },
+          "runtimeState": {
+              "enabled": false,
+              "ui": false
+          },
+          "functionExternalModules": true,
+          "functionTimeout": 0,
+          "tlsConfigDisableLocalFiles": false,
+          "editorTheme": {
+              "palette": {
+                "catalogues": []
+              },
+              "projects": {
+                  "enabled": false,
+                  "workflow": {
+                      "mode": "manual"
+                  }
+              },
+              "multiplayer": {
+                  "enabled": false
+              },
+              "languages": [
+                  "de",
+                  "en-US",
+                  "es-ES",
+                  "fr",
+                  "ja",
+                  "ko",
+                  "pt-BR",
+                  "ru",
+                  "zh-CN",
+                  "zh-TW"
+              ]
+          }
+      }
+      """
+      |> Jason.decode!()
+
+    json(conn, data)
+  end
+
+  def user(conn, _params) do
+    data =
+      """
+      {
+          "editor": {
+              "view": {
+                  "view-store-zoom": false,
+                  "view-store-position": false,
+                  "view-show-grid": true,
+                  "view-snap-grid": true,
+                  "view-grid-size": "20",
+                  "view-node-status": true,
+                  "view-node-show-label": true,
+                  "view-show-tips": true,
+                  "view-show-welcome-tours": true
+              },
+              "tours": {
+                  "welcome": "4.0.8"
+              },
+              "dialog": {
+                  "export": {
+                      "pretty": true,
+                      "json-view": true
+                  }
+              }
+          },
+          "menu-menu-item-sidebar": true,
+          "menu-deploymenu-item-flow": true,
+          "menu-deploymenu-item-full": false,
+          "menu-deploymenu-item-node": false
+      }
+      """
+      |> Jason.decode!()
+
+    json(conn, data)
+  end
+
+  def new_user(conn, _params) do
+    data =
+      """
+      {}
+      """
+      |> Jason.decode!()
+
+    json(conn, data)
+  end
+
+  defp get_file_path("node-red", lng) do
+    "priv/static/assets/nodes/locales/#{lng}/messages.json"
+  end
+
+  defp get_file_path(file, lng) do
+    "priv/static/assets/node-red/locales/#{lng}/#{file}.json"
   end
 end
