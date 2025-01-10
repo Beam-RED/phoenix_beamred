@@ -26,6 +26,29 @@ defmodule NodeExWeb.Router do
 
     get "/", NodeRedController, :home
     get "/comms", WebsocketUpgrade, NodeExWeb.CommsSocket
+
+    # get "/auth/login", NodeRedController, :login
+    # post /auth/token", NodeRedController :credeitnals
+    # post /auth/revoke, NodeRedController, :revoke
+    get "/settings", NodeRedController, :settings
+    get "/diagnostics", NodeRedController, :diagnostics
+    get "/flows", NodeRedController, :flows
+    get "/flows/state", NodeRedController, :flows_state
+    post "/flows", NodeRedController, :new_flow
+    post "/flows/state", NodeRedController, :set_runtime_state
+    post "/flow", NodeRedController, :add_flow
+    get "/flow/:id", NodeRedController, :get_flow
+    put "/flow/:id", NodeRedController, :update_flow
+    delete "/flow/:id", NodeRedController, :delete_flow
+    get "/nodes", NodeRedController, :nodes
+    post "/nodes", NodeRedController, :new_nodes
+    get "/nodes/messages", NodeRedController, :messages
+    get "/nodes/:module", NodeRedController, :get_node_module
+    put "/nodes/:module", NodeRedController, :set_node_module
+    delete "/nodes/:module", NodeRedController, :remove_node_module
+    get "/nodes/:module/:set", NodeRedController, :get_node_set
+    put "/nodes/:module/:set", NodeRedController, :set_node_set
+
     get "/locales/:file", NodeRedController, :locales
     get "/theme", NodeRedController, :theme
     get "/settings", NodeRedController, :settings
@@ -34,10 +57,7 @@ defmodule NodeExWeb.Router do
     get "/plugins", NodeRedController, :plugins
     get "/plugins/messages", NodeRedController, :messages
     get "/nodes", NodeRedController, :nodes
-    get "/nodes/messages", NodeRedController, :messages
     get "/icons", NodeRedController, :icons
-    get "/flows", NodeRedController, :flows
-    post "/flows", NodeRedController, :new_flow
   end
 
   scope "/xterm", NodeExWeb do

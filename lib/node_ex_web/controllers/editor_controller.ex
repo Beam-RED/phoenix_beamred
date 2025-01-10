@@ -87,92 +87,19 @@ defmodule NodeExWeb.NodeRedController do
       """
       [
           {
-              "id": "node-red/junction",
-              "name": "junction",
+              "id": "node-red/beam",
+              "name": "beam",
               "types": [
-                  "junction"
-              ],
-              "enabled": true,
-              "local": false,
-              "user": false,
-              "module": "node-red",
-              "version": "4.0.8"
-          },
-          {
-              "id": "node-red/inject",
-              "name": "inject",
-              "types": [
-                  "inject"
-              ],
-              "enabled": true,
-              "local": false,
-              "user": false,
-              "module": "node-red",
-              "version": "4.0.8"
-          },
-          {
-              "id": "node-red/complete",
-              "name": "complete",
-              "types": [
-                  "complete"
-              ],
-              "enabled": true,
-              "local": false,
-              "user": false,
-              "module": "node-red",
-              "version": "4.0.8"
-          },
-          {
-              "id": "node-red/function",
-              "name": "function",
-              "types": [
-                  "function"
-              ],
-              "enabled": true,
-              "local": false,
-              "user": false,
-              "module": "node-red",
-              "version": "4.0.8"
-          },
-          {
-              "id": "node-red/beam-process",
-              "name": "beam-process",
-              "types": [
-                  "beam-process"
-              ],
-              "enabled": true,
-              "local": false,
-              "user": false
-          },
-          {
-              "id": "node-red/beam-send",
-              "name": "beam-send",
-              "types": [
-                  "beam-send"
-              ],
-              "enabled": true,
-              "local": false,
-              "user": false
-          },
-          {
-              "id": "node-red/beam-module",
-              "name": "beam-module",
-              "types": [
-                  "beam-module"
-              ],
-              "enabled": true,
-              "local": false,
-              "user": false
-          },
-          {
-              "id": "node-red/comment",
-              "name": "comment",
-              "types": [
+                  "beam-process",
+                  "beam-send",
+                  "beam-module",
                   "comment"
               ],
               "enabled": true,
               "local": false,
-              "user": false
+              "user": false,
+              "module": "beam",
+              "version": "4.0.8"
           }
       ]
       """
