@@ -43,7 +43,8 @@ defmodule NodeEx.MixProject do
       {:gettext, "~> 0.26"},
       {:jason, "~> 1.2"},
       {:dns_cluster, "~> 0.1.1"},
-      {:bandit, "~> 1.5"}
+      {:bandit, "~> 1.5"},
+      {:node_type, path: "../node_type"}
     ]
   end
 

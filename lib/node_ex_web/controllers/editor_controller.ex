@@ -110,12 +110,11 @@ defmodule NodeExWeb.NodeRedController do
         json(conn, data)
 
       "html" ->
-        file_path =
-          Path.join([:code.priv_dir(:node_ex), "static", "assets", "nodes", "nodes.html"])
+      nodes = NodeEx.NodesManager.get_nodes()
 
         conn
         |> put_resp_content_type("text/html")
-        |> send_file(200, file_path)
+        |> send_resp(200, nodes)
 
       _ ->
         # TODO remove this

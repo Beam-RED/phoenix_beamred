@@ -1,5 +1,5 @@
 defmodule NodeEx.Nodes.BeamProcess do
-  use NodeEx.NodeType
+  use NodeType, asset_path: "lib/node_ex/nodes/beam_process.html"
 
   alias NodeEx.Runtime
 
@@ -13,12 +13,10 @@ defmodule NodeEx.Nodes.BeamProcess do
   end
 
   def handle_info({:publish, topic, msg}, state) do
-    IO.inspect("#{msg} from #{topic}", label: "Got message")
     {:noreply, state}
   end
 
   def handle_info({:DOWN, ref, :process, object, reason}, state) when ref == state.ref do
-    IO.inspect(reason, label: "Process died")
     {:noreply, state}
   end
 

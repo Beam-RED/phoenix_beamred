@@ -20,6 +20,16 @@ defmodule NodeEx.Utils do
   end
 
   @doc """
+  Checks if the given module exports the given function.
+
+  Loads the module if not loaded.
+  """
+  @spec has_function?(module(), atom(), arity()) :: boolean()
+  def has_function?(module, function, arity) do
+    Code.ensure_loaded?(module) and function_exported?(module, function, arity)
+  end
+
+  @doc """
   """
   @spec diff(map(), map()) :: %{added: map(), removed: map(), changed: map()}
   def diff(old, new) do

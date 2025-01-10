@@ -1,5 +1,5 @@
 defmodule NodeEx.Nodes.BeamSend do
-  use NodeEx.NodeType
+  use NodeType, asset_path: "lib/node_ex/nodes/beam_send.html"
 
   alias NodeEx.Runtime
   alias NodeEx.Runtime.Workspace

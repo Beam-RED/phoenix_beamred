@@ -6,6 +6,7 @@ defmodule NodeEx.Application do
   @impl true
   def start(_type, _args) do
     children = [
+      NodeEx.NodesManager,
       NodeEx.Runtime.Supervisor,
       NodeEx.MQTT.Server,
       NodeExWeb.Telemetry,

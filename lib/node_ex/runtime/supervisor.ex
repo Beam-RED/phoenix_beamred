@@ -1,12 +1,19 @@
 defmodule NodeEx.Runtime.Supervisor do
   use Supervisor
 
+  alias NodeEx.NodesManager
+  alias NodeEx.Nodes
+
   def start_link(opts) do
     Supervisor.start_link(__MODULE__, opts, name: __MODULE__)
   end
 
   @impl true
   def init(_opts) do
+    :ok = NodesManager.register(Nodes.BeamModule)
+    :ok = NodesManager.register(Nodes.BeamProcess)
+    :ok = NodesManager.register(Nodes.BeamSend)
+
     children = [
       NodeEx.Runtime,
       NodeEx.Runtime.Storage,
