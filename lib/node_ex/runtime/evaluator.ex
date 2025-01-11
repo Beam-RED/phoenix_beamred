@@ -6,7 +6,14 @@ defmodule NodeEx.Runtime.Evaluator do
 
   @spec start_link(keyword()) :: GenServer.on_start()
   def start_link(_opts) do
-    GenServer.start_link(__MODULE__, %{}, name: __MODULE__)
+    iex_server =
+      if not IEx.started?() do
+        :iex.start()
+      else
+        IEx.Broker.shell()
+      end
+
+    GenServer.start_link(__MODULE__, %{iex_server: iex_server}, name: __MODULE__)
   end
 
   @doc """
@@ -20,13 +27,13 @@ defmodule NodeEx.Runtime.Evaluator do
   # Server Callbacks
 
   @impl true
-  def init(_) do
+  def init(%{iex_server: iex_server}) do
     state =
       %{
         caller: nil,
         ref: nil,
         iex_evaluator: nil,
-        iex_server: nil
+        iex_server: iex_server
       }
 
     send(self(), :try_get_iex)
@@ -72,9 +79,9 @@ defmodule NodeEx.Runtime.Evaluator do
     {:noreply, %{state | caller: nil, ref: nil}}
   end
 
-  def handle_info(:try_get_iex, state) do
+  def handle_info(:try_get_iex, %{iex_server: iex_server} = state) do
     state =
-      case IEx.Broker.evaluator() do
+      case IEx.Broker.evaluator(iex_server) do
         {nil, _} ->
           Process.send_after(self(), :try_get_iex, 100)
           state
