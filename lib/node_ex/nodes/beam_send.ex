@@ -18,7 +18,13 @@ defmodule NodeEx.Nodes.BeamSend do
 
     IO.inspect(node)
 
-    {:ok, %{id: node.id, outputs: hd(node.outputs), action_type: node.fields["action_type"], message: node.fields["msg"]}}
+    {:ok,
+     %{
+       id: node.id,
+       outputs: hd(node.outputs),
+       action_type: node.fields["action_type"],
+       message: node.fields["msg"]
+     }}
   end
 
   @impl true
@@ -32,11 +38,13 @@ defmodule NodeEx.Nodes.BeamSend do
 
     Enum.each(state.outputs, fn output ->
       {:ok, pid} = Runtime.get_node_pid(output)
+
       case state.action_type do
         "send" -> send(pid, state.message)
         "call" -> GenServer.call(pid, state.message)
         "cast" -> GenServer.cast(pid, state.message)
-        "trigger" -> send(pid, state.message) # TODO implement this. it should call a function with arguments
+        # TODO implement this. it should call a function with arguments
+        "trigger" -> send(pid, state.message)
       end
     end)
 

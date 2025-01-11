@@ -30,6 +30,12 @@ defmodule NodeEx.Utils do
   end
 
   @doc """
+  Create via tuple for Registry.
+  """
+  @spec via_tuple(id()) :: {:via, atom(), {atom(), id()}}
+  def via_tuple(id), do: {:via, Registry, {NodeEx.Runtime.Registry, id}}
+
+  @doc """
   """
   @spec diff(map(), map()) :: %{added: map(), removed: map(), changed: map()}
   def diff(old, new) do

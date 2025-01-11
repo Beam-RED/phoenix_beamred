@@ -209,17 +209,19 @@ defmodule NodeEx.Runtime do
       {:ok, flow_sup_pid} =
         DynamicSupervisor.start_child(
           NodeEx.Runtime.FlowsSupervisor,
-          {DynamicSupervisor,
-           name: {:via, Registry, {NodeEx.Runtime.Registry, flow_id}}, strategy: :one_for_one}
+          {DynamicSupervisor, name: Utils.via_tuple(flow_id), strategy: :one_for_one}
         )
 
       Enum.each(flow.nodes, fn
-        {node_id, {:not_loaded, module}} ->
+        {_node_id, {:not_loaded, module}} ->
           IO.inspect(module, label: "Not loaded")
 
         {node_id, node} ->
-          {:ok, node_pid} =
-            DynamicSupervisor.start_child(flow_sup_pid, {node.module, node})
+          {:ok, _node_pid} =
+            DynamicSupervisor.start_child(
+              flow_sup_pid,
+              {node.module, name: Utils.via_tuple(node_id), node: node}
+            )
             |> IO.inspect(label: "Start node")
       end)
     end)
