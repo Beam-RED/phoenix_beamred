@@ -1,4 +1,13 @@
 <div class="form-row">
+    <label for="node-input-action_type">Action</label>
+    <select id="node-input-action_type" style="width: 70%">
+        <option value="send">Send</option>
+        <option value="call">GenServer Call</option>
+        <option value="cast">GenServer Cast</option>
+        <option value="trigger">Trigger function</option>
+    </select>
+</div>
+<div class="form-row">
     <label for="node-input-msg"><i class="fa fa-tag"></i> Message</label>
     <input type="text" id="node-input-msg" placeholder="Message" />
 </div>

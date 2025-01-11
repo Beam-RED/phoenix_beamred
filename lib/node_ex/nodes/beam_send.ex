@@ -6,29 +6,38 @@ defmodule NodeEx.Nodes.BeamSend do
   alias NodeEx.Runtime
   alias NodeEx.Runtime.Workspace
 
+  @impl true
   def setup(node) do
     case Code.string_to_quoted(node.fields["msg"]) do
       {:ok, _} ->
-        Runtime.set_node_status(node.flow_id, node.id, {"Success", :grey, :ring})
+        Runtime.set_node_status(node.flow_id, node.id, {"Valid", :green, :ring})
 
-      {:error, reason} ->
-        IO.inspect(reason)
-        Runtime.set_node_status(node.flow_id, node.id, {"TEST", :grey, :ring})
+      {:error, _reason} ->
+        Runtime.set_node_status(node.flow_id, node.id, {"Invalid Message", :red, :ring})
     end
 
-    {:ok, %{id: node.id, outputs: hd(node.outputs), message: node.fields["msg"]}}
+    IO.inspect(node)
+
+    {:ok, %{id: node.id, outputs: hd(node.outputs), action_type: node.fields["action_type"], message: node.fields["msg"]}}
   end
 
+  @impl true
   def subscribe(node_id) do
     NodeEx.MQTT.Server.subscribe(["notification/node/#{node_id}"])
   end
 
+  @impl true
   def handle_info({:publish, "notification/node/" <> node_id, "send"}, state) do
     IO.inspect(state, label: "Send")
 
     Enum.each(state.outputs, fn output ->
       {:ok, pid} = Runtime.get_node_pid(output)
-      send(pid, state.message)
+      case state.action_type do
+        "send" -> send(pid, state.message)
+        "call" -> GenServer.call(pid, state.message)
+        "cast" -> GenServer.cast(pid, state.message)
+        "trigger" -> send(pid, state.message) # TODO implement this. it should call a function with arguments
+      end
     end)
 
     {:noreply, state}

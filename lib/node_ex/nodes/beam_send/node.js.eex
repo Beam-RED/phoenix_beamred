@@ -3,6 +3,7 @@ const node = {
         color: "#a6bbcf",
         defaults: {
             msg: { value: "" },
+            action_type: { value: "send" }
         },
         inputs: 0,
         outputs: 1,
@@ -12,21 +13,14 @@ const node = {
         },
         button: {
             enabled: function () {
-                //return !this.changed;
-                return true;
+                return !this.changed;
             },
             onclick: function () {
                 if (this.changed) {
-                    return RED.notify(
-                        RED._("notification.warning", {
-                            message: RED._(
-                                "notification.warnings.undeployedChanges",
-                            ),
-                        }),
-                        "warning",
-                    );
+                  return RED.notify("Undeployed changes", "warning");
+                } else {
+                  RED.comms.send(`notification/node/${this.id}`, "send");
                 }
-                RED.comms.send(`notification/node/${this.id}`, "send");
             },
         },
     };
