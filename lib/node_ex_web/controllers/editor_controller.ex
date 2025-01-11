@@ -110,7 +110,7 @@ defmodule NodeExWeb.NodeRedController do
         json(conn, data)
 
       "html" ->
-      nodes = NodeEx.NodesManager.get_nodes()
+        nodes = NodeEx.NodesManager.get_nodes()
 
         conn
         |> put_resp_content_type("text/html")

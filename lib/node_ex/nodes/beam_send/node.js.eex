@@ -1,5 +1,4 @@
-<script type="text/javascript">
-    RED.nodes.registerType("beam-send", {
+const node = {
         category: "beam",
         color: "#a6bbcf",
         defaults: {
@@ -30,19 +29,4 @@
                 RED.comms.send(`notification/node/${this.id}`, "send");
             },
         },
-    });
-</script>
-
-<script type="text/html" data-template-name="beam-send">
-    <div class="form-row">
-        <label for="node-input-msg"><i class="fa fa-tag"></i> Message</label>
-        <input type="text" id="node-input-msg" placeholder="Message" />
-    </div>
-</script>
-
-<script type="text/html" data-help-name="beam-send">
-    <p>
-        A simple node that converts the message payloads into all lower-case
-        characters
-    </p>
-</script>
+    };

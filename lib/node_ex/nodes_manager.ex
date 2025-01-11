@@ -17,7 +17,7 @@ defmodule NodeEx.NodesManager do
       raise ArgumentError, "module #{inspect(module)} does not define a NodeRed node"
     end
 
-    GenServer.cast(__MODULE__, {:register, module, module.__node_definition__})
+    GenServer.cast(__MODULE__, {:register, module, module.__node_definition__()})
   end
 
   @doc """

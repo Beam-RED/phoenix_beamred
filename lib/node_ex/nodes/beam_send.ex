@@ -1,5 +1,7 @@
 defmodule NodeEx.Nodes.BeamSend do
-  use NodeType, asset_path: "lib/node_ex/nodes/beam_send.html"
+  use NodeType,
+    name: "beam-send",
+    asset_path: "lib/node_ex/nodes/beam_send"
 
   alias NodeEx.Runtime
   alias NodeEx.Runtime.Workspace
@@ -15,6 +17,10 @@ defmodule NodeEx.Nodes.BeamSend do
     end
 
     {:ok, %{id: node.id, outputs: hd(node.outputs), message: node.fields["msg"]}}
+  end
+
+  def subscribe(node_id) do
+    NodeEx.MQTT.Server.subscribe(["notification/node/#{node_id}"])
   end
 
   def handle_info({:publish, "notification/node/" <> node_id, "send"}, state) do

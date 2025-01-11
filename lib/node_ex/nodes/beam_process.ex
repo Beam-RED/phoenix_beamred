@@ -1,5 +1,7 @@
 defmodule NodeEx.Nodes.BeamProcess do
-  use NodeType, asset_path: "lib/node_ex/nodes/beam_process.html"
+  use NodeType,
+    name: "beam-process",
+    asset_path: "lib/node_ex/nodes/beam_process"
 
   alias NodeEx.Runtime
 
@@ -10,6 +12,10 @@ defmodule NodeEx.Nodes.BeamProcess do
     ref = Process.monitor(pid)
 
     {:ok, %{pid: pid, ref: ref}}
+  end
+
+  def subscribe(node_id) do
+    NodeEx.MQTT.Server.subscribe(["notification/node/#{node_id}"])
   end
 
   def handle_info({:publish, topic, msg}, state) do
