@@ -44,10 +44,6 @@ defmodule NodeExWeb.NodeRedHTML do
         </script>
         <script src={~p"/assets/node-red/public/red/main.js"}>
         </script>
-        <script>
-          //RED.init();
-          //RED.sessionMessages = {{{sessionMessages}}};
-        </script>
       </body>
     </html>
     """
