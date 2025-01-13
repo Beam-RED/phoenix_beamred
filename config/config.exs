@@ -7,18 +7,18 @@
 # General application configuration
 import Config
 
-config :node_ex,
+config :beamred,
   generators: [timestamp_type: :utc_datetime]
 
 # Configures the endpoint
-config :node_ex, NodeExWeb.Endpoint,
+config :beamred, BeamREDWeb.Endpoint,
   url: [host: "localhost"],
   adapter: Bandit.PhoenixAdapter,
   render_errors: [
-    formats: [html: NodeExWeb.ErrorHTML, json: NodeExWeb.ErrorJSON],
+    formats: [html: BeamREDBeamREDBeamREDWeb.ErrorHTML, json: BeamREDBeamREDBeamREDWeb.ErrorJSON],
     layout: false
   ],
-  pubsub_server: NodeEx.PubSub,
+  pubsub_server: BeamRED.PubSub,
   live_view: [signing_salt: "E/6JyO/Q"]
 
 # Configures Elixir's Logger

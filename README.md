@@ -1,4 +1,4 @@
-# NodeEx
+# BeamRED
 
 ## History
 This library is made out of pure frustration regarding industrial automation and private home automation.
@@ -14,4 +14,4 @@ And that is what this library tries to solve.
 It uses NodeRED Editor-Client as the frontend and implements a NodeRED runtime in elixir.
 The backend is communicating with the frontend with the help of phoenix.
 
-![Screenshot](./.github/imgs/node_ex_diagram.svg)
+![Screenshot](./.github/imgs/beamred_diagram.svg)
