@@ -10,10 +10,6 @@ defmodule NodeEx.Runtime.Supervisor do
 
   @impl true
   def init(_opts) do
-    :ok = NodesManager.register(Nodes.BeamModule)
-    :ok = NodesManager.register(Nodes.BeamProcess)
-    :ok = NodesManager.register(Nodes.BeamSend)
-
     children = [
       NodeEx.Runtime,
       NodeEx.Runtime.Storage,

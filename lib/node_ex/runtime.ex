@@ -57,9 +57,23 @@ defmodule NodeEx.Runtime do
 
   @doc """
   """
+  @spec get_node_types() :: String.t()
+  def get_node_types() do
+    GenServer.call(__MODULE__, :get_node_types, @timeout)
+  end
+
+  @doc """
+  """
   @spec get_node_pid(Workspace.Node.id()) :: {:ok, pid()} | :error
   def get_node_pid(id) do
     GenServer.call(__MODULE__, {:get_node_pid, id}, @timeout)
+  end
+
+  @doc """
+  """
+  @spec add_node_type(module()) :: :ok
+  def add_node_type(node_type) do
+    GenServer.cast(__MODULE__, {:add_node_type, self(), node_type})
   end
 
   @doc """
@@ -96,12 +110,24 @@ defmodule NodeEx.Runtime do
 
   @impl true
   def init(_opts) do
+    workspace = default_workspace()
+
     state = %__MODULE__{
-      workspace: Workspace.new(),
+      workspace: workspace,
       client_pids_with_id: %{}
     }
 
     {:ok, state}
+  end
+
+  defp default_workspace() do
+    node_types = %{
+      NodeEx.Nodes.BeamModule => NodeEx.Nodes.BeamModule.__node_definition__(),
+      NodeEx.Nodes.BeamProcess => NodeEx.Nodes.BeamProcess.__node_definition__(),
+      NodeEx.Nodes.BeamSend => NodeEx.Nodes.BeamSend.__node_definition__()
+    }
+
+    %{Workspace.new() | node_types: node_types}
   end
 
   @impl true
@@ -125,6 +151,15 @@ defmodule NodeEx.Runtime do
     {:reply, state.workspace, state}
   end
 
+  def handle_call(:get_node_types, _from, state) do
+    nodes =
+      state.workspace.node_types
+      |> Enum.map(fn {_k, v} -> v end)
+      |> Enum.join("\n\n")
+
+    {:reply, nodes, state}
+  end
+
   def handle_call({:get_node_pid, id}, _from, state) do
     case Registry.lookup(NodeEx.Runtime.Registry, id) do
       [] ->
@@ -136,6 +171,12 @@ defmodule NodeEx.Runtime do
   end
 
   @impl true
+  def handle_cast({:add_node_type, client_pid, node_type}, state) do
+    client_id = client_id(state, client_pid)
+    operation = {:add_node_type, client_id, node_type}
+    {:noreply, handle_operation(state, operation)}
+  end
+
   def handle_cast({:insert_flow, client_pid, flow}, state) do
     client_id = client_id(state, client_pid)
     # TODO: what happens if key id is not given?

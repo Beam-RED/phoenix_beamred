@@ -4,6 +4,7 @@ defmodule NodeEx.Runtime.Workspace do
   # A workspace is the datastructure NodeRed outputs as a json file.
 
   defstruct [
+    :node_types,
     :flows,
     :changes,
     :revision,
@@ -11,12 +12,14 @@ defmodule NodeEx.Runtime.Workspace do
     :clients_map
   ]
 
+  alias NodeEx.Utils
   alias NodeEx.User
   alias NodeEx.Runtime.Workspace.Flow
   alias NodeEx.Runtime.Workspace.Node
   alias NodeEx.Runtime.Workspace.Changes
 
   @type t :: %__MODULE__{
+          node_types: %{module() => String.t()},
           flows: %{id() => Flow.t()},
           changes: Changes.t(),
           revision: String.t(),
@@ -24,13 +27,14 @@ defmodule NodeEx.Runtime.Workspace do
           clients_map: %{client_id() => User.id()}
         }
 
-  @type id :: NodeEx.Utils.id()
-  @type client_id :: NodeEx.Utils.id()
+  @type id :: Utils.id()
+  @type client_id :: Utils.id()
   @type deployment_type :: :full | :flows | :nodes | :reload
 
   @type operation ::
           {:client_join, client_id(), User.t()}
           | {:client_leave, client_id()}
+          | {:add_node_type, client_id(), module()}
           | {:insert_flow, client_id(), Flow.id(), map()}
           | {:insert_node, client_id(), Flow.id(), Node.id(), map()}
           | {:delete_flow, client_id(), Flow.id()}
@@ -49,6 +53,7 @@ defmodule NodeEx.Runtime.Workspace do
   @spec new(keyword()) :: t()
   def new(opts \\ []) do
     %__MODULE__{
+      node_types: %{},
       flows: %{},
       revision: :crypto.hash(:sha256, "[]") |> Base.encode16(case: :lower),
       dirty: true,
@@ -78,6 +83,17 @@ defmodule NodeEx.Runtime.Workspace do
       |> with_actions()
       |> client_leave(client_id)
       # |> app_maybe_terminate()
+      |> wrap_ok()
+    else
+      _ -> :error
+    end
+  end
+
+  def apply_operation(workspace, {:add_node_type, _client_id, node_type}) do
+    with true <- Utils.has_function?(node_type, :__node_definition__, 0) do
+      workspace
+      |> with_actions()
+      |> add_node_type(node_type, node_type.__node_definition__)
       |> wrap_ok()
     else
       _ -> :error
@@ -172,6 +188,11 @@ defmodule NodeEx.Runtime.Workspace do
 
     workspace_actions
     |> set!(clients_map: clients_map)
+  end
+
+  defp add_node_type({workspace, _} = workspace_actions, node_type, definition) do
+    workspace_actions
+    |> set!(node_types: Map.put(workspace.node_types, node_type, definition))
   end
 
   defp insert_flow({workspace, _} = workspace_actions, id, flow) do
