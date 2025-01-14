@@ -1,9 +1,9 @@
-defmodule BeamRED.MixProject do
+defmodule Phoenix.NodeRed.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :beamred,
+      app: :phoenix_nodered,
       version: "0.1.0",
       elixir: "~> 1.14",
       elixirc_paths: elixirc_paths(Mix.env()),
@@ -18,7 +18,6 @@ defmodule BeamRED.MixProject do
   # Type `mix help compile.app` for more information.
   def application do
     [
-      mod: {BeamRED.Application, []},
       extra_applications: [:logger, :runtime_tools]
     ]
   end
@@ -37,14 +36,11 @@ defmodule BeamRED.MixProject do
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:phoenix_live_view, "~> 1.0.0"},
       {:floki, ">= 0.30.0", only: :test},
-      {:phoenix_live_dashboard, "~> 0.8.3"},
       {:telemetry_metrics, "~> 1.0"},
       {:telemetry_poller, "~> 1.0"},
       {:gettext, "~> 0.26"},
       {:jason, "~> 1.2"},
-      {:dns_cluster, "~> 0.1.1"},
-      {:bandit, "~> 1.5"},
-      {:node_type, path: "../node_type"}
+      {:bandit, "~> 1.5"}
     ]
   end
 

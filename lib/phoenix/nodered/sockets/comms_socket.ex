@@ -1,12 +1,12 @@
-defmodule BeamREDWeb.CommsSocket do
-  use BeamREDWeb, :verified_routes
+defmodule Phoenix.NodeRedWeb.CommsSocket do
+  use Phoenix.NodeRedWeb, :verified_routes
   @behaviour WebSock
 
   @hb_interval 15000
 
-  alias BeamRED.MQTT.Server
-  alias BeamRED.Runtime
-  alias BeamRED.User
+  alias NodeRed.MQTT.Server
+  alias NodeRed.Runtime
+  alias NodeRed.User
 
   @impl true
   def init(_params) do

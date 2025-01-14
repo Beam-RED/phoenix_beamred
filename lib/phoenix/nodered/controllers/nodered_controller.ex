@@ -1,7 +1,7 @@
-defmodule BeamREDWeb.NodeRedController do
-  use BeamREDWeb, :controller
+defmodule Phoenix.NodeRedWeb.NodeRedController do
+  use Phoenix.NodeRedWeb, :controller
 
-  alias BeamRED.MQTT.Server
+  alias NodeRed.MQTT.Server
 
   def home(conn, _params) do
     # The home page is often custom made,
@@ -53,10 +53,10 @@ defmodule BeamREDWeb.NodeRedController do
 
     rev = params["rev"]
 
-    if !rev || rev == BeamRED.Runtime.Storage.get_rev() do
-      new_rev = BeamRED.Runtime.Storage.save_flows(flows)
+    if !rev || rev == NodeRed.Runtime.Storage.get_rev() do
+      new_rev = NodeRed.Runtime.Storage.save_flows(flows)
 
-      BeamRED.Runtime.deploy_flows(flows, deployment_type)
+      NodeRed.Runtime.deploy_flows(flows, deployment_type)
 
       json(conn, %{rev: new_rev})
     else
@@ -77,7 +77,7 @@ defmodule BeamREDWeb.NodeRedController do
   end
 
   def flows(conn, _params) do
-    {rev, flows} = BeamRED.Runtime.Storage.get_flows()
+    {rev, flows} = NodeRed.Runtime.Storage.get_flows()
 
     json(conn, %{flows: flows, rev: rev})
   end
@@ -110,7 +110,7 @@ defmodule BeamREDWeb.NodeRedController do
         json(conn, data)
 
       "html" ->
-        nodes = BeamRED.Runtime.get_node_types()
+        nodes = NodeRed.Runtime.get_node_types()
 
         conn
         |> put_resp_content_type("text/html")

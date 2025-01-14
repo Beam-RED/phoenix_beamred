@@ -1,4 +1,4 @@
-# BeamRED
+# NodeRed
 
 ## History
 This library is made out of pure frustration regarding industrial automation and private home automation.

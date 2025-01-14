@@ -11,14 +11,14 @@ config :beamred,
   generators: [timestamp_type: :utc_datetime]
 
 # Configures the endpoint
-config :beamred, BeamREDWeb.Endpoint,
+config :beamred, NodeRedWeb.Endpoint,
   url: [host: "localhost"],
   adapter: Bandit.PhoenixAdapter,
   render_errors: [
-    formats: [html: BeamREDBeamREDBeamREDWeb.ErrorHTML, json: BeamREDBeamREDBeamREDWeb.ErrorJSON],
+    formats: [html: NodeRedWeb.ErrorHTML, json: NodeRedWeb.ErrorJSON],
     layout: false
   ],
-  pubsub_server: BeamRED.PubSub,
+  pubsub_server: NodeRed.PubSub,
   live_view: [signing_salt: "E/6JyO/Q"]
 
 # Configures Elixir's Logger

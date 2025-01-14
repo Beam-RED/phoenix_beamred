@@ -1,10 +1,10 @@
-defmodule BeamREDWeb.ErrorHTML do
+defmodule Phoenix.NodeRedWeb.ErrorHTML do
   @moduledoc """
   This module is invoked by your endpoint in case of errors on HTML requests.
 
   See config/config.exs.
   """
-  use BeamREDWeb, :html
+  use Phoenix.NodeRedWeb, :html
 
   # If you want to customize your error pages,
   # uncomment the embed_templates/1 call below

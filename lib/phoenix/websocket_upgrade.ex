@@ -1,4 +1,4 @@
-defmodule BeamREDWeb.WebsocketUpgrade do
+defmodule Phoenix.WebsocketUpgrade do
   @moduledoc """
   Plug to upgrade request to websocket connection and starting `WebSock` handler.
   """

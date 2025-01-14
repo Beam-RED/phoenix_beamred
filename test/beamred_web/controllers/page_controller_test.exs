@@ -1,5 +1,5 @@
-defmodule BeamREDWeb.PageControllerTest do
-  use BeamREDWeb.ConnCase
+defmodule NodeRedWeb.PageControllerTest do
+  use NodeRedWeb.ConnCase
 
   test "GET /", %{conn: conn} do
     conn = get(conn, ~p"/")

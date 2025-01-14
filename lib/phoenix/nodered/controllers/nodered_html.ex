@@ -1,7 +1,7 @@
-defmodule BeamREDWeb.NodeRedHTML do
+defmodule Phoenix.NodeRedWeb.NodeRedHTML do
   @moduledoc """
   """
-  use BeamREDWeb, :html
+  use Phoenix.NodeRedWeb, :html
 
   def render(_template, assigns) do
     ~H"""
@@ -17,32 +17,32 @@ defmodule BeamREDWeb.NodeRedHTML do
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="mobile-web-app-capable" content="yes" />
         <title>Editor</title>
-        <link rel="icon" type="image/png" href={~p"/assets/node-red/public/favicon.ico"} />
+        <link rel="icon" type="image/png" href={"/favicon.ico"} />
         <link
           rel="mask-icon"
-          href={~p"/assets/node-red/public/red/node-red-icon-black.svg"}
+          href={"/red/node-red-icon-black.svg"}
           color="#8f0000"
         />
         <link
           rel="stylesheet"
-          href={~p"/assets/node-red/public/vendor/jquery/css/base/jquery-ui.min.css"}
+          href={"/vendor/jquery/css/base/jquery-ui.min.css"}
         />
         <link
           rel="stylesheet"
-          href={~p"/assets/node-red/public/vendor/font-awesome/css/font-awesome.min.css"}
+          href={"/vendor/font-awesome/css/font-awesome.min.css"}
         />
-        <link rel="stylesheet" href={~p"/assets/node-red/public/red/style.min.css"} />
-        <link rel="stylesheet" href={~p"/assets/node-red/public/vendor/monaco/style.css"} />
+        <link rel="stylesheet" href={"/red/style.min.css"} />
+        <link rel="stylesheet" href={"/vendor/monaco/style.css"} />
       </head>
       <body spellcheck="false">
         <div id="red-ui-editor"></div>
-        <script src={~p"/assets/node-red/public/vendor/vendor.js"}>
+        <script src={"/vendor/vendor.js"}>
         </script>
-        <script src={~p"/assets/node-red/public/vendor/monaco/dist/editor.js"}>
+        <script src={"/vendor/monaco/dist/editor.js"}>
         </script>
-        <script src={~p"/assets/node-red/public/red/red.js"}>
+        <script src={"/red/red.js"}>
         </script>
-        <script src={~p"/assets/node-red/public/red/main.js"}>
+        <script src={"/red/main.js"}>
         </script>
       </body>
     </html>
