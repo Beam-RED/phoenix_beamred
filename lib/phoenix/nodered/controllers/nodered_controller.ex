@@ -134,7 +134,9 @@ defmodule Phoenix.NodeRedWeb.NodeRedController do
 
   def locales(conn, %{"file" => file, "lng" => lng}) do
     # file_path = get_file_path(file, lng)
-    file_path = "priv/static/assets/node-red/locales/#{lng}/#{file}.json"
+    file_path =
+      "priv/static/assets/node-red/locales/#{lng}/#{file}.json"
+      |> IO.inspect(label: "file")
 
     if File.exists?(file_path) do
       conn

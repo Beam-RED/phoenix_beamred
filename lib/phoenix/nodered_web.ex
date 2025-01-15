@@ -42,6 +42,12 @@ defmodule Phoenix.NodeRedWeb do
     end
   end
 
+  def router do
+    quote do
+      import Phoenix.NodeRed.Router
+    end
+  end
+
   defp html_helpers do
     quote do
       # Translation

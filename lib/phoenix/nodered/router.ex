@@ -1,13 +1,8 @@
 defmodule Phoenix.NodeRed.Router do
   defmacro nodered(path, opts \\ []) do
-    opts =
-      if Macro.quoted_literal?(opts) do
-        Macro.prewalk(opts, &expand_alias(&1, __CALLER__))
-      else
-        opts
-      end
+    quote bind_quoted: [path: path, opts: opts] do
+      scoped_path = Phoenix.Router.scoped_path(__MODULE__, path)
 
-    quote bind_quoted: binding() do
       pipeline :static do
         plug(Plug.Static,
           at: "/#{path}",
@@ -63,14 +58,8 @@ defmodule Phoenix.NodeRed.Router do
         get("/nodes", Phoenix.NodeRedWeb.NodeRedController, :nodes)
         get("/icons", Phoenix.NodeRedWeb.NodeRedController, :icons)
 
-        match(:*, "/*path", ErrorController, :notfound)
+        match(:*, "/*path", Phoenix.NodeRedWeb.ErrorController, :notfound)
       end
     end
   end
-
-  defp expand_alias({:__aliases__, _, _} = alias, env) do
-    Macro.expand(alias, %{env | function: {:nodered, 2}})
-  end
-
-  defp expand_alias(other, _env), do: other
 end

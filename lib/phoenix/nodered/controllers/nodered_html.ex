@@ -4,7 +4,7 @@ defmodule Phoenix.NodeRedWeb.NodeRedHTML do
   use Phoenix.NodeRedWeb, :html
 
   def render(_template, assigns) do
-    path = assigns.conn.request_path
+    IO.inspect(assigns)
 
     ~H"""
     <!DOCTYPE html>
@@ -20,21 +20,31 @@ defmodule Phoenix.NodeRedWeb.NodeRedHTML do
         <meta name="mobile-web-app-capable" content="yes" />
         <title>Editor</title>
         <link rel="icon" type="image/png" href="/favicon.ico" />
-        <link rel="mask-icon" href={"#{path}red/node-red-icon-black.svg"} color="#8f0000" />
-        <link rel="stylesheet" href={"#{path}vendor/jquery/css/base/jquery-ui.min.css"} />
-        <link rel="stylesheet" href={"#{path}vendor/font-awesome/css/font-awesome.min.css"} />
-        <link rel="stylesheet" href={"#{path}red/style.min.css"} />
-        <link rel="stylesheet" href={"#{path}vendor/monaco/style.css"} />
+        <link
+          rel="mask-icon"
+          href={"#{@conn.request_path}/red/node-red-icon-black.svg"}
+          color="#8f0000"
+        />
+        <link
+          rel="stylesheet"
+          href={"#{@conn.request_path}/vendor/jquery/css/base/jquery-ui.min.css"}
+        />
+        <link
+          rel="stylesheet"
+          href={"#{@conn.request_path}/vendor/font-awesome/css/font-awesome.min.css"}
+        />
+        <link rel="stylesheet" href={"#{@conn.request_path}/red/style.min.css"} />
+        <link rel="stylesheet" href={"#{@conn.request_path}/vendor/monaco/style.css"} />
       </head>
       <body spellcheck="false">
         <div id="red-ui-editor"></div>
-        <script src={"#{path}vendor/vendor.js"}>
+        <script src={"#{@conn.request_path}/vendor/vendor.js"}>
         </script>
-        <script src={"#{path}vendor/monaco/dist/editor.js"}>
+        <script src={"#{@conn.request_path}/vendor/monaco/dist/editor.js"}>
         </script>
-        <script src={"#{path}red/red.js"}>
+        <script src={"#{@conn.request_path}/red/red.js"}>
         </script>
-        <script src={"#{path}red/main.js"}>
+        <script src={"#{@conn.request_path}/red/main.js"}>
         </script>
       </body>
     </html>
