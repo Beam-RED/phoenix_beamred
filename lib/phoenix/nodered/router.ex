@@ -27,10 +27,9 @@ defmodule Phoenix.NodeRed.Router do
         import Phoenix.Router
 
         pipe_through(:static)
-        |> dbg()
 
         get("/", Phoenix.NodeRedWeb.NodeRedController, :home)
-        get("/comms", Phoenix.WebsocketUpgrade, NodeRedWeb.CommsSocket)
+        get("/comms", Phoenix.WebsocketUpgrade, Phoenix.NodeRedWeb.CommsSocket)
 
         # get "/auth/login", Phoenix.NodeRedController, :login
         # post /auth/token", Phoenix.NodeRedController :credeitnals
@@ -64,7 +63,7 @@ defmodule Phoenix.NodeRed.Router do
         get("/nodes", Phoenix.NodeRedWeb.NodeRedController, :nodes)
         get("/icons", Phoenix.NodeRedWeb.NodeRedController, :icons)
 
-        get("/*path", ErrorController, :notfound)
+        match(:*, "/*path", ErrorController, :notfound)
       end
     end
   end

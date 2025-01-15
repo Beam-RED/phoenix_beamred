@@ -4,6 +4,8 @@ defmodule Phoenix.NodeRedWeb.NodeRedHTML do
   use Phoenix.NodeRedWeb, :html
 
   def render(_template, assigns) do
+    path = assigns.conn.request_path
+
     ~H"""
     <!DOCTYPE html>
     <html>
@@ -17,32 +19,22 @@ defmodule Phoenix.NodeRedWeb.NodeRedHTML do
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="mobile-web-app-capable" content="yes" />
         <title>Editor</title>
-        <link rel="icon" type="image/png" href={"/favicon.ico"} />
-        <link
-          rel="mask-icon"
-          href={"/red/node-red-icon-black.svg"}
-          color="#8f0000"
-        />
-        <link
-          rel="stylesheet"
-          href={"/vendor/jquery/css/base/jquery-ui.min.css"}
-        />
-        <link
-          rel="stylesheet"
-          href={"/vendor/font-awesome/css/font-awesome.min.css"}
-        />
-        <link rel="stylesheet" href={"/red/style.min.css"} />
-        <link rel="stylesheet" href={"/vendor/monaco/style.css"} />
+        <link rel="icon" type="image/png" href="/favicon.ico" />
+        <link rel="mask-icon" href={"#{path}red/node-red-icon-black.svg"} color="#8f0000" />
+        <link rel="stylesheet" href={"#{path}vendor/jquery/css/base/jquery-ui.min.css"} />
+        <link rel="stylesheet" href={"#{path}vendor/font-awesome/css/font-awesome.min.css"} />
+        <link rel="stylesheet" href={"#{path}red/style.min.css"} />
+        <link rel="stylesheet" href={"#{path}vendor/monaco/style.css"} />
       </head>
       <body spellcheck="false">
         <div id="red-ui-editor"></div>
-        <script src={"/vendor/vendor.js"}>
+        <script src={"#{path}vendor/vendor.js"}>
         </script>
-        <script src={"/vendor/monaco/dist/editor.js"}>
+        <script src={"#{path}vendor/monaco/dist/editor.js"}>
         </script>
-        <script src={"/red/red.js"}>
+        <script src={"#{path}red/red.js"}>
         </script>
-        <script src={"/red/main.js"}>
+        <script src={"#{path}red/main.js"}>
         </script>
       </body>
     </html>
