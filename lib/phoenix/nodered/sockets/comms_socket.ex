@@ -4,9 +4,9 @@ defmodule Phoenix.NodeRedWeb.CommsSocket do
 
   @hb_interval 15000
 
-  alias NodeRed.MQTT.Server
-  alias NodeRed.Runtime
-  alias NodeRed.User
+  alias BeamRED.MQTT.Server
+  alias BeamRED.Runtime
+  alias BeamRED.User
 
   @impl true
   def init(_params) do
@@ -69,6 +69,7 @@ defmodule Phoenix.NodeRedWeb.CommsSocket do
   end
 
   defp handle_operation(state, operation) do
+    # TODO
     case Runtime.Workspace.apply_operation(state.workspace, operation) do
       {:ok, new_workspace, actions} ->
         %{state | workspace: new_workspace}

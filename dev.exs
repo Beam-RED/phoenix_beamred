@@ -4,7 +4,6 @@
 
 Mix.install([
   {:phoenix_nodered, path: "."},
-  {:beamred_runtime, path: "../beamred_runtime"},
   {:phoenix_playground, "~> 0.1.7"}
 ])
 

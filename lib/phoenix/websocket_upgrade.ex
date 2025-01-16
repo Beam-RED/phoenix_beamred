@@ -9,9 +9,6 @@ defmodule Phoenix.WebsocketUpgrade do
 
   @impl Plug
   def call(%Plug.Conn{} = conn, handler) do
-    IO.inspect(conn, label: "conn")
-    IO.inspect(handler, label: "handler")
-
     conn
     |> WebSockAdapter.upgrade(handler, %{path_params: conn.path_params}, [])
     |> Plug.Conn.halt()

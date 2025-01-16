@@ -1,18 +1,14 @@
 defmodule Phoenix.NodeRed.Router do
   defmacro nodered(path, opts \\ []) do
     quote bind_quoted: [path: path, opts: opts] do
-      scoped_path = Phoenix.Router.scoped_path(__MODULE__, path)
+      scoped_path =
+        Phoenix.Router.scoped_path(__MODULE__, path)
+        |> IO.inspect(label: "Path")
 
       pipeline :static do
         plug(Plug.Static,
           at: "/#{path}",
           from: {:phoenix_nodered, "priv/static/assets/node-red/public"},
-          gzip: false
-        )
-
-        plug(Plug.Static,
-          at: "/#{path}/icons/node-red",
-          from: {:phoenix_nodered, "priv/static/assets/nodes/icons"},
           gzip: false
         )
       end

@@ -40,7 +40,8 @@ defmodule Phoenix.NodeRed.MixProject do
       {:telemetry_poller, "~> 1.0"},
       {:gettext, "~> 0.26"},
       {:jason, "~> 1.2"},
-      {:bandit, "~> 1.5"}
+      {:bandit, "~> 1.5"},
+      {:beamred_runtime, path: "../beamred_runtime"}
     ]
   end
 
