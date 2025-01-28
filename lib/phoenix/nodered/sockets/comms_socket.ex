@@ -33,7 +33,7 @@ defmodule Phoenix.NodeRedWeb.CommsSocket do
   end
 
   defp handle_msg(state, %{"subscribe" => topic}) do
-    :ok = Server.subscribe([topic])
+    :ok = Server.subscribe(topic)
     {:ok, state}
   end
 
